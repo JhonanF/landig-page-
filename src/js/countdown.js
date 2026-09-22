@@ -25,7 +25,7 @@ const millisEl  = document.getElementById('countdown-millis');
  * Usado para desactivar el intervalo de milisegundos en móviles.
  * @returns {boolean}
  */
-const isMobile = () => window.innerWidth < 768;
+const isDeviceMobile = () => window.innerWidth < 768;
 
 /**
  * Formatea un número con ceros a la izquierda.
@@ -93,7 +93,7 @@ window.initOfferCountdown = (hours = 2, discountText = '') => {
 
     window.countdownInterval = setInterval(updateCountdown, 1000);
 
-    if (!isMobile()) {
+    if (!isDeviceMobile()) {
         window.millisInterval = setInterval(updateMillis, 80);
     } else {
         if (millisEl) millisEl.textContent = '00';

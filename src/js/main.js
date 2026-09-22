@@ -380,13 +380,45 @@ const fetchDynamicContent = async () => {
         }
 
         // 5. Configuración de Oferta (Temporizador)
+        window.appState = { offerActive: false };
         if (data.offer) {
+            window.appState.offerActive = data.offer.active === true;
             const countdownBox = document.querySelector('.countdown-box');
+            const pricingOriginals = document.querySelectorAll('.pricing-original');
+            const offerRibbons = document.querySelectorAll('.offer-ribbon');
+            const dynamicPrices = document.querySelectorAll('.dynamic-price');
             
             if (data.offer.active === false) {
                 if (countdownBox) countdownBox.style.display = 'none';
+                // Ocultar precio original tachado y etiqueta de cupón
+                pricingOriginals.forEach(el => el.style.display = 'none');
+                offerRibbons.forEach(el => el.style.display = 'none');
+                // Restaurar el precio real
+                dynamicPrices.forEach(el => el.textContent = '$17.00 USD');
             } else {
                 if (countdownBox) countdownBox.style.display = '';
+                // Asegurar que se muestre el precio original tachado y etiqueta
+                pricingOriginals.forEach(el => el.style.display = '');
+                offerRibbons.forEach(el => {
+                    el.style.display = '';
+                    if (data.offer.discountText) {
+                        el.textContent = `Cupón ${data.offer.discountText} Aplicado`;
+                        el.setAttribute('aria-label', `Cupón del ${data.offer.discountText} aplicado`);
+                    }
+                });
+                // Calcular matemáticamente el precio final basado en el porcentaje
+                let calculatedPrice = 8.50; // default 50% de 17.00
+                if (data.offer.discountText) {
+                    const match = data.offer.discountText.match(/\d+/); // Extrae el número, ej "70%" -> 70
+                    if (match) {
+                        const percentage = parseInt(match[0], 10);
+                        if (percentage >= 0 && percentage <= 100) {
+                            calculatedPrice = 17.00 * (1 - percentage / 100);
+                        }
+                    }
+                }
+                dynamicPrices.forEach(el => el.textContent = `$${calculatedPrice.toFixed(2)} USD`);
+                
                 // Iniciar contador
                 if (typeof window.initOfferCountdown === 'function') {
                     window.initOfferCountdown(data.offer.hours, data.offer.discountText);
@@ -417,6 +449,12 @@ const initCouponSystem = () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (window.appState && window.appState.offerActive) {
+            feedback.innerHTML = `<span style="color:var(--color-danger)">Ya hay una oferta global activa. Los cupones no son acumulativos.</span>`;
+            return;
+        }
+
         const code = input.value.trim();
         if (!code) return;
 
@@ -440,7 +478,18 @@ const initCouponSystem = () => {
                 input.style.borderColor = 'var(--color-neon)';
                 
                 const couponUrl = data.coupon.url;
-                const couponPrice = data.coupon.newPrice;
+                let couponPrice = data.coupon.newPrice;
+                
+                // Si no hay un precio fijo configurado, extraer el porcentaje del mensaje (Ej. "50 OFF" -> 50%)
+                if (!couponPrice && data.coupon.message) {
+                    const match = data.coupon.message.match(/\d+/);
+                    if (match) {
+                        const percentage = parseInt(match[0], 10);
+                        if (percentage >= 0 && percentage <= 100) {
+                            couponPrice = `$${(17.00 * (1 - percentage / 100)).toFixed(2)} USD`;
+                        }
+                    }
+                }
 
                 if (couponUrl) {
                     const paymentBtns = document.querySelectorAll('[data-checkout-url]');

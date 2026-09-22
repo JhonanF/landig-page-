@@ -37,8 +37,8 @@
     }
   },
   "offer": {
-    "active": true,
-    "hours": 2,
+    "active": false,
+    "hours": 10,
     "discountText": "70%"
   },
   "coupons": [

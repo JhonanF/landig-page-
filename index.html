@@ -435,6 +435,21 @@
                             <span>APK + .exe incluidos</span>
                         </div>
                     </div>
+                    <!-- Cupón de descuento VIP -->
+                    <div class="offer-coupon-vip reveal reveal-delay-4">
+                        <div class="coupon-divider"></div>
+                        <p class="coupon-title">
+                            <span aria-hidden="true"><i data-lucide="key"></i></span>
+                            ¿Tienes una llave de acceso?
+                        </p>
+                        <form id="coupon-form" class="coupon-form-vip">
+                            <div class="coupon-input-wrapper">
+                                <input type="text" id="coupon-input" placeholder="INGRESA TU CÓDIGO" class="coupon-input-vip" autocomplete="off" spellcheck="false">
+                                <button type="submit" class="btn-apply-vip" id="btn-apply-coupon">Canjear</button>
+                            </div>
+                        </form>
+                        <div id="coupon-feedback" class="coupon-feedback-vip"></div>
+                    </div>
                 </div>
 
             </div>
@@ -465,19 +480,6 @@
                         <span>Transferencia Local / Otros</span>
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- ==========================================
-             SECCIÓN: CUPONES DE DESCUENTO
-             ========================================== -->
-        <section class="coupon-section">
-            <div class="container" style="max-width: 600px; text-align: center;">
-                <h3 style="color: var(--text-silver); font-size: 1.2rem; margin-bottom: 1rem;">¿Tienes un código de descuento?</h3>
-                <form id="coupon-form" class="coupon-form">
-                    <input type="text" id="coupon-input" placeholder="Ingresa tu código aquí" class="coupon-input" style="text-transform: uppercase;">
-                    <button type="submit" class="btn btn--outline" id="btn-apply-coupon" style="white-space: nowrap;">Aplicar</button>
-                </form>
-                <div id="coupon-feedback" class="coupon-feedback"></div>
             </div>
         </section>
     </main>
@@ -676,8 +678,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 
     <script src="src/js/spline-3d.js" defer></script>
-    <script src="src/js/main.js"      defer></script>
     <script src="src/js/countdown.js" defer></script>
+    <script src="src/js/main.js"      defer></script>
     <script src="src/js/modal.js"     defer></script>
     <script src="src/js/editor.js"    defer></script>
 
