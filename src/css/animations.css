@@ -1,0 +1,154 @@
+/**
+ * animations.css — Keyframes & Animaciones
+ * Santuario del Hombre — Landing Page
+ */
+
+/* ─── FONDO: AURA LÍQUIDA ─────────────────────────────────── */
+@keyframes liquidEnergy {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+    33%  { transform: translate(8vw, 4vh) scale(1.12) rotate(120deg); }
+    66%  { transform: translate(-6vw, 8vh) scale(0.92) rotate(240deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+}
+
+/* ─── FONDO: PULSO ATMOSFÉRICO ────────────────────────────── */
+@keyframes atmosPulse {
+    0%   { opacity: 0.7; transform: scale(1); }
+    50%  { opacity: 1;   transform: scale(1.03); }
+    100% { opacity: 0.7; transform: scale(1); }
+}
+
+/* ─── BADGE: PULSO VERDE (ONLINE) ────────────────────────── */
+@keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+}
+
+/* ─── DOT DE ESTADO VIVO ─────────────────────────────────── */
+@keyframes liveDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* ─── SCROLL INDICATOR ────────────────────────────────────── */
+@keyframes scrollBounce {
+    0%   { transform: translateY(0); opacity: 1; }
+    50%  { transform: translateY(10px); opacity: 0.3; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── COUNTDOWN: PULSO NÚMERO ────────────────────────────── */
+@keyframes countPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}
+
+/* ─── ENTRADA HERO: FADE UP ──────────────────────────────── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(40px);
+        filter: blur(12px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* ─── ENTRADA HERO: FADE IN ──────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── SHIMMER PRECIO TACHADO ─────────────────────────────── */
+@keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ─── GLOW PULSANTE BOTÓN ────────────────────────────────── */
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(223, 186, 83, 0.35); }
+    50%       { box-shadow: 0 10px 50px rgba(223, 186, 83, 0.6), 0 0 80px rgba(0, 255, 136, 0.15); }
+}
+
+/* ─── FLOAT SUAVE ─────────────────────────────────────────── */
+@keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* ─── ROTATE LENTO (ORNAMENTO) ───────────────────────────── */
+@keyframes slowRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   CLASES DE UTILIDAD: SCROLL REVEAL (manejadas por main.js)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Estado inicial: elementos ocultos antes de entrar al viewport */
+.reveal {
+    opacity: 0;
+    transform: translateY(35px) scale(0.98);
+    filter: blur(8px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.reveal--left {
+    transform: translateX(-35px) scale(0.98);
+}
+
+.reveal.reveal--right {
+    transform: translateX(35px) scale(0.98);
+}
+
+.reveal.reveal--scale {
+    transform: scale(0.93);
+}
+
+/* Estado visible: cuando entra al viewport */
+.reveal.is-visible {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0);
+}
+
+/* Delays para animaciones escalonadas */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+
+/* ─── SPINNER LOADER (MODAL) ──────────────────────────────── */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner-loader {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--color-neon);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* ─── CARRUSEL INFINITO (HERO) ───────────────────────────── */
+@keyframes marqueeMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}

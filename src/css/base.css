@@ -1,0 +1,331 @@
+/**
+ * base.css — Reset, Body & Fondo Cinematográfico
+ * Santuario del Hombre — Landing Page
+ */
+
+/* ─── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-abyss);
+    height: 100%;
+    overflow-x: hidden; /* Prevenir scroll horizontal en CUALQUIER viewport */
+}
+
+body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: var(--bg-abyss);
+    color: var(--text-silver);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Protección de contenido */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Permitir selección en inputs */
+input, textarea, select {
+    -webkit-user-select: auto !important;
+    -moz-user-select: auto !important;
+    user-select: auto !important;
+}
+
+/* Evitar arrastre de imágenes/links */
+a, img, video {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
+/* ─── CAPA 1: REJILLA TÁCTICA 3D ──────────────────────────── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 120vh;
+    background-size: 50px 50px;
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
+    perspective: 1500px;
+    transform: rotateX(20deg) scale(1.2);
+    transform-origin: top;
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* ─── CAPA 2: AURA LÍQUIDA ANIMADA ───────────────────────── */
+body::after {
+    content: '';
+    position: fixed;
+    width: 65vw;
+    height: 65vh;
+    top: 15%;
+    left: 17%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(223, 186, 83, 0.18), transparent 65%),
+        radial-gradient(circle at 70% 70%, rgba(0, 255, 136, 0.14), transparent 65%);
+    filter: blur(180px);
+    opacity: 0.9;
+    z-index: -1;
+    pointer-events: none;
+    animation: liquidEnergy 28s infinite alternate ease-in-out;
+}
+
+/* ─── TIPOGRAFÍA BASE ─────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-white);
+    letter-spacing: -0.02em;
+}
+
+p { line-height: 1.75; }
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+}
+
+/* ─── UTILIDADES GLOBALES ─────────────────────────────────── */
+.lucide {
+    width: 1.2em;
+    height: 1.2em;
+    stroke-width: 2;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: text-bottom;
+}
+
+.lucide-sm {
+    width: 1em;
+    height: 1em;
+}
+
+.text-gold { color: var(--color-gold); }
+.text-neon { color: var(--color-neon); }
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.container--narrow {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ─── NAVBAR GLASSMORPHIC ─────────────────────────────────── */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 1.6rem var(--space-lg);
+    transition: padding 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar.scrolled {
+    padding: 1rem var(--space-lg);
+}
+
+.nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid var(--border-faint);
+    padding: 0.85rem 2.5rem;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+    transition: var(--transition-smooth);
+}
+
+.navbar.scrolled .nav-inner {
+    border-color: var(--border-gold);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(223, 186, 83, 0.05);
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo-img {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+    transition: var(--transition-smooth);
+}
+
+.nav-logo:hover .nav-logo-img {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2.8rem;
+}
+
+.nav-link {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    position: relative;
+    padding: 0.4rem 0;
+    transition: var(--transition-smooth);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-gold), var(--color-neon));
+    transition: var(--transition-smooth);
+}
+
+.nav-link:hover {
+    color: var(--text-white);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-cta {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--bg-abyss);
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+    padding: 0.6rem 1.6rem;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 4px 20px rgba(223, 186, 83, 0.3);
+    transition: var(--transition-smooth);
+}
+
+.nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-btn-gold);
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.footer {
+    padding: var(--space-2xl) 0 var(--space-xl);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-abyss);
+    text-align: center;
+}
+
+.footer-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+}
+
+.footer-logo-img {
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.15);
+}
+
+.footer-desc {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    max-width: 420px;
+    margin: 0 auto var(--space-md);
+    line-height: 1.8;
+}
+
+.footer-copy {
+    font-size: var(--text-xs);
+    color: var(--text-faint);
+    letter-spacing: 1px;
+}
+
+/* ─── RESPONSIVE BASE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .navbar {
+        padding: 1.2rem var(--space-md);
+    }
+
+    .nav-inner {
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 var(--space-sm);
+    }
+}

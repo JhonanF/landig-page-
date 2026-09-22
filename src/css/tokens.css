@@ -1,0 +1,93 @@
+/**
+ * tokens.css — Design Tokens
+ * Santuario del Hombre — Landing Page
+ *
+ * REGLA: Todos los valores de diseño viven aquí.
+ * Nunca usar valores hardcodeados en otros archivos CSS.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    /* ── COLORES BASE ─────────────────────────────── */
+    --bg-abyss:         #000000;
+    --bg-dark:          #050608;
+    --bg-card:          rgba(10, 10, 15, 0.5);
+    --bg-card-hover:    rgba(15, 15, 22, 0.7);
+    --bg-surface:       rgba(255, 255, 255, 0.02);
+    --bg-surface-hover: rgba(255, 255, 255, 0.05);
+
+    /* ── ACENTOS ──────────────────────────────────── */
+    --color-gold:        #dfba53;
+    --color-gold-light:  #f0d070;
+    --color-gold-dark:   #c4a040;
+    --color-gold-glow:   rgba(223, 186, 83, 0.25);
+    --color-gold-glow-sm: rgba(223, 186, 83, 0.12);
+
+    --color-neon:        #00ff88;
+    --color-neon-light:  #33ffaa;
+    --color-neon-dark:   #00cc6a;
+    --color-neon-glow:   rgba(0, 255, 136, 0.25);
+    --color-neon-glow-sm: rgba(0, 255, 136, 0.10);
+
+    --color-blue:        #60a5fa;
+    --color-purple:      #a78bfa;
+
+    /* ── TEXTOS ───────────────────────────────────── */
+    --text-white:        #ffffff;
+    --text-silver:       #d1d5db;
+    --text-muted:        #6b7280;
+    --text-faint:        #374151;
+
+    /* ── BORDES ───────────────────────────────────── */
+    --border-faint:      rgba(255, 255, 255, 0.04);
+    --border-subtle:     rgba(255, 255, 255, 0.08);
+    --border-medium:     rgba(255, 255, 255, 0.12);
+    --border-gold:       rgba(223, 186, 83, 0.35);
+    --border-gold-strong: rgba(223, 186, 83, 0.6);
+    --border-neon:       rgba(0, 255, 136, 0.25);
+    --border-neon-strong: rgba(0, 255, 136, 0.5);
+
+    /* ── TIPOGRAFÍA ───────────────────────────────── */
+    --font-display:      'Space Grotesk', 'Poppins', sans-serif;
+    --font-body:         'Poppins', 'Space Grotesk', sans-serif;
+
+    --text-xs:    0.65rem;
+    --text-sm:    0.8rem;
+    --text-base:  1rem;
+    --text-lg:    1.15rem;
+    --text-xl:    1.4rem;
+    --text-2xl:   1.8rem;
+    --text-3xl:   2.4rem;
+    --text-4xl:   3.2rem;
+    --text-hero:  clamp(2.5rem, 8.5vw, 9rem);
+
+    /* ── SOMBRAS ──────────────────────────────────── */
+    --shadow-card:      0 4px 24px rgba(0, 0, 0, 0.6);
+    --shadow-card-hover: 0 8px 40px rgba(0, 0, 0, 0.8);
+    --shadow-gold:      0 0 30px var(--color-gold-glow), 0 0 60px rgba(223, 186, 83, 0.08);
+    --shadow-neon:      0 0 30px var(--color-neon-glow), 0 0 60px rgba(0, 255, 136, 0.06);
+    --shadow-btn-gold:  0 10px 30px rgba(223, 186, 83, 0.35);
+    --shadow-btn-neon:  0 10px 30px rgba(0, 255, 136, 0.30);
+
+    /* ── ESPACIADO ────────────────────────────────── */
+    --space-xs:   0.5rem;
+    --space-sm:   1rem;
+    --space-md:   1.5rem;
+    --space-lg:   2.5rem;
+    --space-xl:   4rem;
+    --space-2xl:  6rem;
+    --space-3xl:  8rem;
+
+    /* ── RADIO DE BORDE ───────────────────────────── */
+    --radius-sm:   8px;
+    --radius-md:   16px;
+    --radius-lg:   24px;
+    --radius-xl:   32px;
+    --radius-pill: 100px;
+
+    /* ── TRANSICIONES ─────────────────────────────── */
+    --transition-fast:   all 0.2s ease;
+    --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-slow:   all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}

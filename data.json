@@ -1,0 +1,52 @@
+{
+  "videoUrl": "https://cdn.coverr.co/videos/coverr-a-man-in-a-suit-working-on-his-laptop-in-a-modern-office-2651/1080p.mp4",
+  "carouselImages": [
+    "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1555529733-0e67056058e1?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1503376712353-33e14f6d2f34?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=600&auto=format&fit=crop",
+    "uploads/1790029519871.png"
+  ],
+  "socialLinks": {
+    "whatsapp": {
+      "url": "https://wa.me/1234567890",
+      "active": true
+    },
+    "telegram": {
+      "url": "https://t.me/santuario",
+      "active": true
+    },
+    "instagram": {
+      "url": "https://instagram.com/",
+      "active": true
+    }
+  },
+  "paymentLinks": {
+    "card": {
+      "url": "https://buy.stripe.com/test",
+      "active": true
+    },
+    "paypal": {
+      "url": "https://paypal.me/santuario",
+      "active": true
+    },
+    "crypto": {
+      "url": "https://commerce.coinbase.com/checkout",
+      "active": true
+    }
+  },
+  "offer": {
+    "active": true,
+    "hours": 2,
+    "discountText": "70%"
+  },
+  "coupons": [
+    {
+      "code": "SANTUARIONAVIDAD",
+      "message": "50 OF",
+      "url": "",
+      "active": true
+    }
+  ]
+}

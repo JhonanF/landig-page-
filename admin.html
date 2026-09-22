@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santuario Admin Panel</title>
+    
+    <!-- Preload Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Outfit:wght@200;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="src/css/tokens.css">
+    <link rel="stylesheet" href="src/css/base.css">
+    <link rel="stylesheet" href="src/css/components.css">
+    <link rel="stylesheet" href="src/css/admin.css">
+</head>
+<body class="admin-body">
+    
+    <!-- ════════════════════════════════════════════════════
+         LOGIN OVERLAY (Glassmorphism)
+         ════════════════════════════════════════════════════ -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box card-pilar">
+            <div class="login-header">
+                <span class="logo-icon"><i data-lucide="shield-check"></i></span>
+                <h2>Acceso Restringido</h2>
+                <p>Ingresa tus credenciales para administrar el Santuario.</p>
+            </div>
+            <form id="login-form" class="admin-form">
+                <div class="input-group">
+                    <label for="login-username">Usuario</label>
+                    <input type="text" id="login-username" placeholder="admin" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full" id="btn-login">Ingresar al Panel</button>
+                <div id="login-feedback" class="feedback-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <header class="admin-header">
+        <div class="admin-logo">
+            <span class="logo-icon"><i data-lucide="shield"></i></span>
+            <h1>Santuario <span class="text-neon">Admin</span></h1>
+        </div>
+        <div class="admin-actions" style="display: flex; gap: 1rem;">
+            <a href="/?edit=true" class="btn btn-outline" target="_blank" style="border-color: var(--color-neon); color: var(--color-neon);">
+                <i data-lucide="edit-3" style="width:16px; margin-right:4px;"></i> Editor Visual
+            </a>
+            <a href="/" class="btn btn-outline" target="_blank">Ver Landing Page</a>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        
+        <!-- Payment Methods Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="credit-card"></i> Métodos de Pago (Checkout)</h2>
+                <p>Configura y activa las opciones de pago que aparecerán en el modal.</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <form id="payment-form" class="admin-form">
+                    
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="payment-card"><i data-lucide="credit-card"></i> Tarjeta</label>
+                            <label class="switch">
+                                <input type="checkbox" id="payment-card-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="payment-card" placeholder="https://buy.stripe.com/...">
+                    </div>
+
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="payment-paypal"><i data-lucide="dollar-sign"></i> PayPal</label>
+                            <label class="switch">
+                                <input type="checkbox" id="payment-paypal-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="payment-paypal" placeholder="https://paypal.me/...">
+                    </div>
+
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="payment-crypto"><i data-lucide="bitcoin"></i> Criptomonedas</label>
+                            <label class="switch">
+                                <input type="checkbox" id="payment-crypto-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="payment-crypto" placeholder="https://commerce.coinbase.com/...">
+                    </div>
+
+                    <button type="submit" class="btn btn--primary" id="btn-save-payment">Guardar Pagos</button>
+                </form>
+                <div id="payment-feedback" class="feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- Offer Configuration Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="clock"></i> Configuración de Oferta (Urgencia)</h2>
+                <p>Controla el banner superior y el temporizador de cuenta regresiva.</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <form id="offer-form" class="admin-form">
+                    
+                    <div class="input-group social-group" style="margin-bottom: 1.5rem;">
+                        <div class="social-header">
+                            <label for="offer-active"><i data-lucide="zap"></i> Activar Banner de Oferta</label>
+                            <label class="switch">
+                                <input type="checkbox" id="offer-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="offer-discount-text">Texto de Descuento (Ej. 70%)</label>
+                        <input type="text" id="offer-discount-text" placeholder="Ej. 70%">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="offer-hours">Horas del Temporizador (Evergreen)</label>
+                        <input type="number" id="offer-hours" placeholder="Ej. 2" min="1" max="72">
+                        <small style="color: var(--text-muted);">El reloj siempre empezará desde este tiempo para cada usuario nuevo.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary" id="btn-save-offer">Guardar Configuración de Oferta</button>
+                </form>
+                <div id="offer-feedback" class="feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- Coupons Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="tag"></i> Cupones de Descuento</h2>
+                <p>Crea códigos que ofrezcan enlaces con precios rebajados.</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <div id="coupons-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Los cupones se renderizan aquí dinámicamente -->
+                </div>
+                
+                <button type="button" class="btn btn-outline" id="btn-add-coupon" style="width: 100%; border-style: dashed;">
+                    <i data-lucide="plus"></i> Añadir Nuevo Cupón
+                </button>
+                <div style="margin-top: 1rem;">
+                    <button type="button" class="btn btn--primary" id="btn-save-coupons">Guardar Cambios de Cupones</button>
+                    <div id="coupons-feedback" class="feedback-msg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Links Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="share-2"></i> Redes Sociales Flotantes</h2>
+                <p>Links para los botones flotantes de la Landing. (Deja en blanco para ocultar el botón).</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <form id="social-form" class="admin-form">
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="social-whatsapp"><i data-lucide="message-circle"></i> WhatsApp</label>
+                            <label class="switch">
+                                <input type="checkbox" id="social-whatsapp-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="social-whatsapp" placeholder="https://wa.me/1234567890">
+                    </div>
+                    
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="social-telegram"><i data-lucide="send"></i> Telegram</label>
+                            <label class="switch">
+                                <input type="checkbox" id="social-telegram-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="social-telegram" placeholder="https://t.me/usuario">
+                    </div>
+
+                    <div class="input-group social-group">
+                        <div class="social-header">
+                            <label for="social-instagram"><i data-lucide="instagram"></i> Instagram</label>
+                            <label class="switch">
+                                <input type="checkbox" id="social-instagram-active" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="url" id="social-instagram" placeholder="https://instagram.com/usuario">
+                    </div>
+                    <button type="submit" class="btn btn--primary" id="btn-save-social">Guardar Redes Sociales</button>
+                </form>
+                <div id="social-feedback" class="feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- VSL Video Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="video"></i> Video Principal (VSL)</h2>
+                <p>Enlace de YouTube, Vimeo, o archivo .mp4 directo.</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <form id="video-form" class="admin-form">
+                    <div class="input-group">
+                        <label for="video-url">URL del Video</label>
+                        <input type="url" id="video-url" placeholder="https://..." required>
+                    </div>
+                    <button type="submit" class="btn btn--primary" id="btn-save-video">Guardar Video</button>
+                </form>
+                <div id="video-feedback" class="feedback-msg"></div>
+            </div>
+        </section>
+
+        <!-- Carousel Images Section -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2><i data-lucide="images"></i> Carrusel de Fotos</h2>
+                <p>Sube imágenes para mostrar en el carrusel infinito de la landing page.</p>
+            </div>
+            
+            <div class="card-pilar admin-card">
+                <!-- Upload Form -->
+                <form id="image-form" class="admin-form">
+                    <div class="input-group file-input-group">
+                        <label for="image-upload" class="file-label">
+                            <i data-lucide="upload-cloud"></i>
+                            <span>Seleccionar nueva imagen</span>
+                        </label>
+                        <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" class="hidden-input">
+                    </div>
+                    <div id="file-name-display" class="file-name-display">Ningún archivo seleccionado</div>
+                    <button type="submit" class="btn btn--neon" id="btn-upload-image" disabled>Subir Imagen</button>
+                </form>
+                <div id="image-feedback" class="feedback-msg"></div>
+
+                <!-- Gallery Grid -->
+                <div class="admin-gallery">
+                    <h3>Imágenes Actuales</h3>
+                    <div id="gallery-grid" class="gallery-grid">
+                        <!-- Creadas dinámicamente -->
+                        <div class="gallery-loading">Cargando imágenes...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="src/js/admin.js" defer></script>
+</body>
+</html>

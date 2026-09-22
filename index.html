@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ── SEO ─────────────────────────────────────────────── -->
+    <title>Santuario del Hombre | La Biblioteca Definitiva de Cursos</title>
+    <meta name="description" content="Accede hoy a la biblioteca más completa de seducción, ventas, finanzas y desarrollo personal. Pago único, acceso vitalicio. APK Android + .exe para PC incluidos.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://santuariodelhombre.com/">
+
+    <!-- ── OPEN GRAPH ─────────────────────────────────────── -->
+    <meta property="og:type"        content="website">
+    <meta property="og:title"       content="Santuario del Hombre | La Biblioteca Definitiva de Cursos">
+    <meta property="og:description" content="El arsenal más completo de seducción, ventas, finanzas y desarrollo personal. Pago único $8.50 USD — Acceso vitalicio.">
+    <meta property="og:url"         content="https://santuariodelhombre.com/">
+    <meta property="og:locale"      content="es_ES">
+
+    <!-- ── TWITTER CARD ──────────────────────────────────── -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Santuario del Hombre | Acceso Vitalicio $8.50 USD">
+    <meta name="twitter:description" content="La biblioteca de cursos más grande de Latinoamérica. APK + EXE incluidos.">
+
+    <!-- ── FUENTES (preload) ──────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ── CSS ───────────────────────────────────────────── -->
+    <link rel="stylesheet" href="src/css/tokens.css">
+    <link rel="stylesheet" href="src/css/editor.css">
+    <link rel="stylesheet" href="src/css/animations.css">
+    <link rel="stylesheet" href="src/css/base.css">
+    <link rel="stylesheet" href="src/css/components.css">
+
+    <!-- ── LIBRERÍAS EXTERNAS ────────────────────────────── -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.3.0/build/spline-viewer.js"></script>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════════════════
+         NAVBAR
+         ════════════════════════════════════════════════════ -->
+    <header class="navbar" id="navbar" role="banner">
+        <div class="container">
+            <nav class="nav-inner" aria-label="Navegación principal">
+                <!-- Logo -->
+                <a href="#" class="nav-logo" aria-label="Santuario del Hombre — Inicio">
+                    <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="nav-logo-img">
+                </a>
+
+                <!-- Links -->
+                <ul class="nav-links" role="list">
+                    <li><a href="#plataforma" class="nav-link">La Biblioteca</a></li>
+                    <li><a href="#pilares"    class="nav-link">4 Pilares</a></li>
+                    <li><a href="#dispositivos" class="nav-link">APK & EXE</a></li>
+                    <li><a href="#oferta"     class="nav-link">Acceso VIP</a></li>
+                </ul>
+
+                <!-- CTA nav -->
+                <a href="#oferta" class="nav-cta" data-testid="nav-cta">Obtener Acceso</a>
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- ════════════════════════════════════════════════════
+         HERO
+         ════════════════════════════════════════════════════ -->
+    <main>
+        <section id="hero" class="cinematic-hero" aria-label="Hero - Propuesta principal">
+            <!-- Layer 1: Atmospheric Background (Glow & Pulse) -->
+            <div class="parallax-layer bg-layer">
+                <div class="glow-vignette"></div>
+                <div class="grid-overlay"></div>
+            </div>
+
+            <!-- Layer 2: Monumental Text & Tech Stats -->
+            <div class="parallax-layer text-layer">
+                <div class="text-wrapper">
+                    <h1 class="monumental-title">
+                        SANTUARIO<br>
+                        <span>DEL HOMBRE</span>
+                    </h1>
+                    
+                    <!-- Technical Stats Panel -->
+                    <div class="stats-panel">
+                        <div class="stat-box">
+                            <span class="stat-num">01</span>
+                            <span class="stat-label">Enfoque Absoluto</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-box">
+                            <span class="stat-num">30X</span>
+                            <span class="stat-label">Potencial</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-box">
+                            <span class="stat-num">100%</span>
+                            <span class="stat-label">Soberanía</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 3: Foreground (Interactive 3D Space & Magnetic CTA) -->
+            <div class="parallax-layer fg-layer">
+                <div class="interactive-content">
+                    <!-- Contenedor del modelo 3D -->
+                    <div id="canvas-3d">
+                        <spline-viewer url="https://prod.spline.design/A9B8C7D6E5F4G3H2/scene.splinecode"></spline-viewer>
+                    </div>
+                    
+                    <!-- Magnetic CTA button -->
+                    <div class="magnetic-wrap">
+                        <button class="btn btn--primary btn-magnetic" data-open-checkout data-testid="cta-hero-primary">
+                            <span class="btn-text">Entrar al Santuario</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAYER 4: CAROUSEL INFINITO (Aparece con el Scroll) -->
+            <div class="parallax-layer carousel-layer">
+                <div class="marquee-wrapper">
+                    <div class="marquee-track" id="carousel-track-1">
+                        <!-- Las imágenes se cargarán dinámicamente desde la API (main.js) -->
+                    </div>
+                    <!-- Duplicado para Scroll Infinito CSS -->
+                    <div class="marquee-track" id="carousel-track-2" aria-hidden="true">
+                        <!-- Las imágenes se cargarán dinámicamente desde la API (main.js) -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subtle Scroll Down Indicator -->
+            <div class="scroll-indicator">
+                <span class="scroll-indicator__line"></span>
+                <span class="scroll-indicator__text">Divergir</span>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: VIDEO SALES LETTER (VSL)
+             ════════════════════════════════════════════════ -->
+        <section id="vsl" class="vsl-section" aria-labelledby="vsl-title">
+            <div class="container vsl-container">
+                <div class="vsl-glow" aria-hidden="true"></div>
+                <div class="vsl-video-wrapper tilt-video reveal">
+                    <!-- Marco Glassmorphic -->
+                    <div class="vsl-glass-frame">
+                        <video id="main-vsl-video" class="vsl-video" poster="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1200&auto=format&fit=crop" controls preload="metadata">
+                            <!-- El source se cargará dinámicamente -->
+                            <source id="vsl-video-source" src="" type="video/mp4">
+                            Tu navegador no soporta el formato de video.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: PLATAFORMA
+             ════════════════════════════════════════════════ -->
+        <section id="plataforma" class="section section--dark" aria-labelledby="plataforma-title">
+            <div class="container">
+
+                <div class="section-header">
+                    <span class="section-label section-label--gold reveal">Infraestructura de Élite</span>
+                    <h2 class="section-title reveal reveal-delay-1" id="plataforma-title">
+                        La Biblioteca en Constante Expansión
+                    </h2>
+                    <p class="section-subtitle reveal reveal-delay-2">
+                        No es una simple academia online. Es un ecosistema vivo donde se suben contenidos nuevos todas las semanas, de manera ininterrumpida.
+                    </p>
+                </div>
+
+                <div class="platform-grid">
+                    <!-- Card 1 -->
+                    <article class="platform-card reveal reveal-delay-1" aria-label="Actualización Constante">
+                        <div class="platform-card__icon platform-card__icon--gold" aria-hidden="true"><i data-lucide="trending-up"></i></div>
+                        <h3 class="platform-card__title">Actualización Constante</h3>
+                        <p class="platform-card__text">
+                            Nuestra base de datos crece cada semana con los lanzamientos más recientes del mercado anglosajón y latinoamericano.
+                        </p>
+                    </article>
+
+                    <!-- Card 2 -->
+                    <article class="platform-card platform-card--neon reveal reveal-delay-2" aria-label="Autores Top Mundiales">
+                        <div class="platform-card__icon platform-card__icon--neon" aria-hidden="true"><i data-lucide="globe"></i></div>
+                        <h3 class="platform-card__title">Autores Top Mundiales</h3>
+                        <p class="platform-card__text">
+                            Cursos completos e íntegros de referentes internacionales traducidos, además de los mejores mentores de habla hispana.
+                        </p>
+                    </article>
+
+                    <!-- Card 3 -->
+                    <article class="platform-card reveal reveal-delay-3" aria-label="Acceso Sin Restricciones">
+                        <div class="platform-card__icon platform-card__icon--gold" aria-hidden="true"><i data-lucide="unlock"></i></div>
+                        <h3 class="platform-card__title">Acceso Sin Restricciones</h3>
+                        <p class="platform-card__text">
+                            Sin letras pequeñas, sin cargos ocultos o suscripciones mensuales sorpresa. Un único pago te otorga acceso total.
+                        </p>
+                    </article>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: 4 PILARES
+             ════════════════════════════════════════════════ -->
+        <section id="pilares" class="section" aria-labelledby="pilares-title">
+            <div class="container">
+
+                <div class="section-header">
+                    <span class="section-label section-label--neon reveal">Dominio Absoluto</span>
+                    <h2 class="section-title reveal reveal-delay-1" id="pilares-title">
+                        Los 4 Pilares del Hombre de Alto Valor
+                    </h2>
+                    <p class="section-subtitle reveal reveal-delay-2">
+                        Todo lo que necesitas para dominar cada aspecto de tu vida personal, financiera y relacional.
+                    </p>
+                </div>
+
+                <div class="pilares-grid">
+                    <!-- Pilar 1: Seducción -->
+                    <article class="pilar-card reveal reveal-delay-1" aria-label="Pilar 1: Seducción y Relaciones">
+                        <div>
+                            <div class="pilar-card__icon" aria-hidden="true"><i data-lucide="flame"></i></div>
+                            <h3 class="pilar-card__title">Seducción & Relaciones</h3>
+                            <p class="pilar-card__text">
+                                Comprende la psicología femenina, domina el juego interno y externo, comunicación magnética y seguridad inquebrantable.
+                            </p>
+                        </div>
+                        <div class="pilar-card__footer">+ Cursos especializados</div>
+                    </article>
+
+                    <!-- Pilar 2: Ventas -->
+                    <article class="pilar-card pilar-card--neon reveal reveal-delay-2" aria-label="Pilar 2: Ventas y Negocios">
+                        <div>
+                            <div class="pilar-card__icon pilar-card__icon--neon" aria-hidden="true"><i data-lucide="briefcase"></i></div>
+                            <h3 class="pilar-card__title">Closers de Ventas & Negocios</h3>
+                            <p class="pilar-card__text">
+                                Técnicas de persuasión avanzada, cierres de alto valor, objeciones y el arte de facturar cifras elevadas en cualquier industria.
+                            </p>
+                        </div>
+                        <div class="pilar-card__footer pilar-card__footer--neon">+ Cursos especializados</div>
+                    </article>
+
+                    <!-- Pilar 3: Finanzas -->
+                    <article class="pilar-card reveal reveal-delay-3" aria-label="Pilar 3: Finanzas y Libertad">
+                        <div>
+                            <div class="pilar-card__icon" aria-hidden="true"><i data-lucide="circle-dollar-sign"></i></div>
+                            <h3 class="pilar-card__title">Finanzas & Libertad</h3>
+                            <p class="pilar-card__text">
+                                Mentalidad de abundancia, inversiones inteligentes, criptomonedas, creación de activos y libertad financiera digital.
+                            </p>
+                        </div>
+                        <div class="pilar-card__footer">+ Cursos especializados</div>
+                    </article>
+
+                    <!-- Pilar 4: Desarrollo Personal -->
+                    <article class="pilar-card pilar-card--neon reveal reveal-delay-4" aria-label="Pilar 4: Desarrollo Personal">
+                        <div>
+                            <div class="pilar-card__icon pilar-card__icon--neon" aria-hidden="true"><i data-lucide="brain"></i></div>
+                            <h3 class="pilar-card__title">Desarrollo Personal</h3>
+                            <p class="pilar-card__text">
+                                Disciplina de hierro, estoicismo práctico, liderazgo, optimización de la salud física y mentalidad de éxito imbatible.
+                            </p>
+                        </div>
+                        <div class="pilar-card__footer pilar-card__footer--neon">+ Cursos especializados</div>
+                    </article>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: DISPOSITIVOS
+             ════════════════════════════════════════════════ -->
+        <section id="dispositivos" class="section section--dark" aria-labelledby="dispositivos-title">
+            <div class="container">
+
+                <div class="section-header">
+                    <span class="section-label section-label--gold reveal">Multiplataforma</span>
+                    <h2 class="section-title reveal reveal-delay-1" id="dispositivos-title">
+                        Lleva el Santuario Dónde Quieras
+                    </h2>
+                    <p class="section-subtitle reveal reveal-delay-2">
+                        Diseñado para funcionar perfectamente tanto en tu ordenador como en tu dispositivo móvil.
+                    </p>
+                </div>
+
+                <div class="devices-grid">
+                    <!-- APK Android -->
+                    <article class="device-card device-card--neon reveal reveal-delay-1" aria-label="Aplicación Android APK">
+                        <div class="device-card__glow device-card__glow--neon" aria-hidden="true"></div>
+                        <div>
+                            <span class="device-badge device-badge--neon">📱 Android APK</span>
+                            <h3 class="device-card__title">Aplicación para Celular Android</h3>
+                            <p class="device-card__text">
+                                Estudia camino al trabajo, en el gimnasio o en tus tiempos libres. Una interfaz fluida optimizada para smartphones Android para que tu educación nunca se detenga.
+                            </p>
+                            <ul class="device-features" aria-label="Características del APK">
+                                <li class="device-feature">
+                                    <span class="device-feature__check device-feature__check--neon" aria-hidden="true"><i data-lucide="check"></i></span>
+                                    <span>Compatible con cualquier versión moderna de Android</span>
+                                </li>
+                                <li class="device-feature">
+                                    <span class="device-feature__check device-feature__check--neon" aria-hidden="true"><i data-lucide="check"></i></span>
+                                    <span>Navegación ultrarrápida y ligera</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button
+                            class="btn btn--neon btn--full"
+                            data-open-checkout
+                            data-testid="cta-apk"
+                            aria-label="Obtener APK de Android"
+                        >
+                            Obtener APK Instantáneo
+                        </button>
+                    </article>
+
+                    <!-- EXE PC -->
+                    <article class="device-card device-card--gold reveal reveal-delay-2" aria-label="Aplicación PC ejecutable">
+                        <div class="device-card__glow device-card__glow--gold" aria-hidden="true"></div>
+                        <div>
+                            <span class="device-badge device-badge--gold"><i data-lucide="laptop"></i> Programa Portable .exe</span>
+                            <h3 class="device-card__title">Ejecutable para PC & Laptop</h3>
+                            <p class="device-card__text">
+                                Disfruta de una experiencia inmersiva en pantalla grande. Software ejecutable optimizado para Windows, listo para abrir con un solo clic sin instalaciones complejas.
+                            </p>
+                            <ul class="device-features" aria-label="Características del EXE">
+                                <li class="device-feature">
+                                    <span class="device-feature__check device-feature__check--gold" aria-hidden="true"><i data-lucide="check"></i></span>
+                                    <span>Compatible con Windows 10 y 11 (PC / Laptops)</span>
+                                </li>
+                                <li class="device-feature">
+                                    <span class="device-feature__check device-feature__check--gold" aria-hidden="true"><i data-lucide="check"></i></span>
+                                    <span>Interfaz moderna, oscura y elegante</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button
+                            class="btn btn--primary btn--full"
+                            data-open-checkout
+                            data-testid="cta-exe"
+                            aria-label="Obtener versión PC .exe"
+                        >
+                            Obtener Versión PC .exe
+                        </button>
+                    </article>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: OFERTA / PRECIO
+             ════════════════════════════════════════════════ -->
+        <section id="oferta" class="offer-section" aria-labelledby="oferta-title">
+            <div class="offer-section__bg-glow" aria-hidden="true"></div>
+            <div class="container--narrow">
+
+                <div class="offer-card reveal">
+                    <!-- Ribbon de descuento -->
+                    <div class="offer-ribbon" aria-label="Cupón del 50% aplicado">Cupón 50% Aplicado</div>
+
+                    <span class="offer-card__label">Acceso Total Vitalicio</span>
+                    <h2 class="offer-card__title" id="oferta-title">El Santuario Del Hombre</h2>
+                    <p class="offer-card__desc">
+                        Desbloquea hoy la biblioteca completa para Android APK y PC .exe con todas las actualizaciones futuras incluidas de por vida.
+                    </p>
+
+                    <!-- Countdown -->
+                    <div class="countdown-box reveal reveal-delay-1" aria-label="Tiempo restante de la oferta">
+                        <span class="countdown-label">La oferta expira en:</span>
+                        <div class="countdown-grid" role="timer" aria-live="polite">
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="countdown-hours" aria-label="Horas">02</span>
+                                <span class="countdown-unit-label">Horas</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="countdown-minutes" aria-label="Minutos">45</span>
+                                <span class="countdown-unit-label">Minutos</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="countdown-seconds" aria-label="Segundos">30</span>
+                                <span class="countdown-unit-label">Segundos</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number countdown-number--millis" id="countdown-millis" aria-hidden="true">99</span>
+                                <span class="countdown-unit-label">Miliseg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="pricing-display reveal reveal-delay-2" aria-label="Precio de la oferta">
+                        <span class="pricing-original" aria-label="Precio original tachado: 17 dólares">$17.00 USD</span>
+                        <span class="pricing-sale" aria-label="Precio con descuento: 8 dólares y 50 centavos"><span class="dynamic-price">$8.50 USD</span></span>
+                    </div>
+
+                    <!-- CTA Principal -->
+                    <button
+                        class="btn btn--primary btn--xl reveal reveal-delay-3"
+                        data-open-checkout
+                        data-testid="cta-oferta-checkout"
+                        aria-label="Acceder ahora por 8 dólares con 50 centavos"
+                    >
+                        ⚡ ACCEDER AHORA POR <span class="dynamic-price">$8.50 USD</span>
+                    </button>
+
+                    <!-- Micro-garantías -->
+                    <div class="offer-guarantees reveal reveal-delay-4" aria-label="Garantías de compra">
+                        <div class="offer-guarantee">
+                            <span aria-hidden="true"><i data-lucide="shield-check"></i></span>
+                            <span>Pago 100% Seguro</span>
+                        </div>
+                        <div class="offer-guarantee">
+                            <span aria-hidden="true"><i data-lucide="rocket"></i></span>
+                            <span>Entrega Inmediata</span>
+                        </div>
+                        <div class="offer-guarantee">
+                            <span aria-hidden="true"><i data-lucide="laptop"></i></span>
+                            <span>APK + .exe incluidos</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════════
+             SECCIÓN: MÉTODOS DE PAGO
+             ════════════════════════════════════════════════ -->
+        <section id="pagos" class="payments-section" aria-labelledby="pagos-label">
+            <div class="container">
+                <p class="payments-label" id="pagos-label">Métodos de Pago Aceptados</p>
+                <div class="payments-grid" role="list" aria-label="Métodos de pago">
+                    <div class="payment-chip" role="listitem">
+                        <span aria-hidden="true"><i data-lucide="wallet"></i></span>
+                        <span>PayPal</span>
+                    </div>
+                    <div class="payment-chip" role="listitem">
+                        <span aria-hidden="true"><i data-lucide="bitcoin"></i></span>
+                        <span>Criptomonedas (USDT / BTC)</span>
+                    </div>
+                    <div class="payment-chip" role="listitem">
+                        <span aria-hidden="true"><i data-lucide="credit-card"></i></span>
+                        <span>Tarjeta Débito / Crédito</span>
+                    </div>
+                    <div class="payment-chip" role="listitem">
+                        <span aria-hidden="true"><i data-lucide="landmark"></i></span>
+                        <span>Transferencia Local / Otros</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ==========================================
+             SECCIÓN: CUPONES DE DESCUENTO
+             ========================================== -->
+        <section class="coupon-section">
+            <div class="container" style="max-width: 600px; text-align: center;">
+                <h3 style="color: var(--text-silver); font-size: 1.2rem; margin-bottom: 1rem;">¿Tienes un código de descuento?</h3>
+                <form id="coupon-form" class="coupon-form">
+                    <input type="text" id="coupon-input" placeholder="Ingresa tu código aquí" class="coupon-input" style="text-transform: uppercase;">
+                    <button type="submit" class="btn btn--outline" id="btn-apply-coupon" style="white-space: nowrap;">Aplicar</button>
+                </form>
+                <div id="coupon-feedback" class="coupon-feedback"></div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- ════════════════════════════════════════════════════
+         FOOTER
+         ════════════════════════════════════════════════════ -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-logo">
+                <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="footer-logo-img">
+            </div>
+            <p class="footer-desc">
+                Todos los derechos reservados. El conocimiento es poder.<br>
+                Diseñado para hombres enfocados en el éxito, el liderazgo y el alto rendimiento.
+            </p>
+            <p class="footer-copy">&copy; 2026 Santuario del Hombre. Plataforma privada de educación superior.</p>
+        </div>
+    </footer>
+
+
+    <!-- ════════════════════════════════════════════════════
+         MODAL: CHECKOUT
+         ════════════════════════════════════════════════════ -->
+    <div
+        id="modal-checkout"
+        class="modal modal--hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-checkout-title"
+    >
+        <div class="modal-box">
+            <button
+                class="modal-close"
+                data-close-checkout
+                data-testid="modal-checkout-close"
+                aria-label="Cerrar modal de checkout"
+            >
+                &times;
+            </button>
+
+            <div class="modal-header">
+                <div class="modal-icon" aria-hidden="true"><i data-lucide="zap"></i></div>
+                <h2 class="modal-title" id="modal-checkout-title">Finalizar Adquisición</h2>
+                <p class="modal-subtitle">Santuario del Hombre (Acceso Vitalicio + APK + .exe)</p>
+            </div>
+
+            <!-- Resumen de precio -->
+            <div class="modal-price-summary">
+                <div>
+                    <span class="modal-price-label">Precio con Cupón 50%</span>
+                    <span class="modal-price-value">Total: $8.50 USD</span>
+                </div>
+                <span class="modal-price-status">✓ Activado</span>
+            </div>
+
+            <!-- Métodos de pago -->
+            <label class="modal-payment-label">Selecciona tu método de pago preferido:</label>
+            <div class="payment-option-list" role="list">
+                <button
+                    class="payment-option payment-option--blue"
+                    data-payment-method="PayPal"
+                    data-testid="checkout-paypal"
+                    role="listitem"
+                    aria-label="Pagar con PayPal"
+                >
+                    <span class="payment-option__left">
+                        <span aria-hidden="true"><i data-lucide="wallet"></i></span>
+                        <span>PayPal / Tarjeta vía PayPal</span>
+                    </span>
+                    <span class="payment-option__arrow">Seleccionar →</span>
+                </button>
+
+                <button
+                    class="payment-option"
+                    data-payment-method="Criptomonedas"
+                    data-testid="checkout-crypto"
+                    role="listitem"
+                    aria-label="Pagar con Criptomonedas"
+                >
+                    <span class="payment-option__left">
+                        <span aria-hidden="true"><i data-lucide="bitcoin"></i></span>
+                        <span>Criptomonedas (USDT / BTC)</span>
+                    </span>
+                    <span class="payment-option__arrow">Seleccionar →</span>
+                </button>
+
+                <button
+                    class="payment-option payment-option--neon"
+                    data-payment-method="Tarjeta"
+                    data-testid="checkout-card"
+                    role="listitem"
+                    aria-label="Pagar con Tarjeta de Crédito o Débito"
+                >
+                    <span class="payment-option__left">
+                        <span aria-hidden="true"><i data-lucide="credit-card"></i></span>
+                        <span>Tarjeta de Crédito / Débito directa</span>
+                    </span>
+                    <span class="payment-option__arrow">Seleccionar →</span>
+                </button>
+            </div>
+
+            <p class="modal-footer-note">
+                Al confirmar serás redirigido a la pasarela segura de pago y recibirás tus accesos APK y .exe inmediatamente en tu correo.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════════════════
+         MODAL: CONFIRMACIÓN
+         ════════════════════════════════════════════════════ -->
+    <div
+        id="modal-confirm"
+        class="modal modal--hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-confirm-title-heading"
+    >
+        <div class="modal-box modal-box--neon">
+            <button
+                class="modal-close"
+                data-close-confirm
+                data-testid="modal-confirm-close"
+                aria-label="Cerrar modal de confirmación"
+            >
+                &times;
+            </button>
+
+            <div class="modal-header">
+                <div class="modal-icon" aria-hidden="true" style="background: rgba(0,255,136,0.1); border-color: var(--border-neon);"><i data-lucide="check-circle"></i></div>
+                <h2 class="modal-title" id="modal-confirm-title-heading">
+                    <span id="modal-confirm-title">¡Método Seleccionado!</span>
+                </h2>
+                <p id="modal-confirm-text" class="modal-subtitle" style="max-width:340px; margin: 0 auto; line-height:1.7;">
+                    Has seleccionado tu método de pago con éxito. Redirigiendo al servidor seguro...
+                </p>
+            </div>
+
+            <button
+                class="btn btn--neon btn--full"
+                data-close-confirm
+                data-testid="modal-confirm-continue"
+                style="margin-top: var(--space-md);"
+                aria-label="Continuar al proceso de pago"
+            >
+                Continuar
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════════════════
+         STICKY BOTTOM CTA (solo visible en móvil vía CSS)
+         ════════════════════════════════════════════════════ -->
+    <aside
+        class="mobile-sticky-bar"
+        id="mobile-sticky-bar"
+        role="complementary"
+        aria-label="Oferta especial — compra rápida"
+    >
+        <button
+            class="btn btn--primary btn--full btn-magnetic"
+            data-open-checkout
+            data-testid="cta-sticky-mobile"
+            aria-label="Acceder ahora al Santuario del Hombre por 8.50 dólares"
+        >
+            <span>⚡ ACCEDER AHORA</span>
+            <span style="opacity:0.8; font-weight:700;"><span class="dynamic-price">— $8.50 USD</span></span>
+        </button>
+    </aside>
+
+    <!-- ==========================================
+         FLOATING SOCIAL BUTTONS (Dynamic)
+         ========================================== -->
+    <div class="floating-socials" id="floating-socials">
+        <!-- Estos botones se rellenarán con los links del Admin Panel -->
+        <a href="#" id="btn-social-whatsapp" class="social-btn social-whatsapp hidden" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <i data-lucide="message-circle"></i>
+        </a>
+        <a href="#" id="btn-social-telegram" class="social-btn social-telegram hidden" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+            <i data-lucide="send"></i>
+        </a>
+        <a href="#" id="btn-social-instagram" class="social-btn social-instagram hidden" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <i data-lucide="instagram"></i>
+        </a>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         SCRIPTS
+         ════════════════════════════════════════════════════ -->
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Vanilla Tilt -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+    <script src="src/js/spline-3d.js" defer></script>
+    <script src="src/js/main.js"      defer></script>
+    <script src="src/js/countdown.js" defer></script>
+    <script src="src/js/modal.js"     defer></script>
+    <script src="src/js/editor.js"    defer></script>
+
+</body>
+</html>

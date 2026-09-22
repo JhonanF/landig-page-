@@ -1,0 +1,89 @@
+/* editor.css — Estilos para el Modo Edición Visual */
+
+/* Borde sutil para indicar elementos editables */
+.editable {
+    outline: 1px dashed rgba(223, 186, 83, 0.4);
+    outline-offset: 4px;
+    transition: outline-color 0.3s ease, background-color 0.3s ease;
+    cursor: text;
+}
+
+.editable:hover, .editable:focus {
+    outline: 2px dashed rgba(0, 255, 136, 0.8);
+    background-color: rgba(0, 255, 136, 0.05);
+}
+
+/* Barra flotante del Editor */
+#editor-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 2px solid var(--color-neon);
+    z-index: 10000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    font-family: var(--font-body);
+}
+
+.editor-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.editor-status span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-neon);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-neon);
+    animation: pulse-neon 2s infinite;
+}
+
+@keyframes pulse-neon {
+    0% { box-shadow: 0 0 5px var(--color-neon); }
+    50% { box-shadow: 0 0 15px var(--color-neon); }
+    100% { box-shadow: 0 0 5px var(--color-neon); }
+}
+
+.editor-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-editor {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-editor:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-editor-save {
+    background: var(--color-neon);
+    color: black;
+    border: none;
+}
+
+.btn-editor-save:hover {
+    background: #00cc6e;
+    box-shadow: 0 0 15px var(--color-neon);
+}
