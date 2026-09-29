@@ -303,7 +303,11 @@ const initHeroScrollAnimation = () => {
  */
 const fetchDynamicContent = async () => {
     try {
-        const res = await fetch('/api/content');
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        const apiUrl = ref ? `/api/content?ref=${encodeURIComponent(ref)}` : '/api/content';
+        
+        const res = await fetch(apiUrl);
         if (!res.ok) throw new Error('API no disponible');
         const data = await res.json();
 
@@ -462,10 +466,13 @@ const initCouponSystem = () => {
         btn.disabled = true;
 
         try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+
             const res = await fetch('/api/validate-coupon', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
+                body: JSON.stringify({ code, ref })
             });
 
             const data = await res.json();
@@ -550,9 +557,10 @@ const init = async () => {
         lucide.createIcons();
     }
 
-    // VanillaTilt solo en desktop con cursor real.
-    // En táctil el efecto hace lag en el scroll y no aporta valor UX.
-    if (typeof VanillaTilt !== 'undefined' && !isTouchDevice()) {
+    // VanillaTilt solo en equipos con puntero preciso. En pantallas táctiles
+    // evitamos sus listeners de movimiento/orientación y su coste continuo.
+    const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    if (typeof VanillaTilt !== 'undefined' && !hasCoarsePointer) {
         VanillaTilt.init(document.querySelectorAll(".platform-card, .pilar-card, .device-card, .tilt-video"), {
             max: 5,
             speed: 400,

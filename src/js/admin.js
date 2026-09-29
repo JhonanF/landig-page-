@@ -50,6 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const couponsFeedback = document.getElementById('coupons-feedback');
     let couponsData = [];
 
+    // Referencias DOM - Sellers
+    const sellersContainer = document.getElementById('sellers-container');
+    const btnAddSeller = document.getElementById('btn-add-seller');
+    const btnSaveSellers = document.getElementById('btn-save-sellers');
+    const sellersFeedback = document.getElementById('sellers-feedback');
+    let sellersData = [];
+
     // Referencias DOM - Social
     const socialForm = document.getElementById('social-form');
     const socialWhatsapp = document.getElementById('social-whatsapp');
@@ -150,6 +157,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Utilidad: Renderizar Vendedores
+    const renderSellers = () => {
+        sellersContainer.innerHTML = '';
+        if (sellersData.length === 0) {
+            sellersContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No hay vendedores creados.</p>';
+            return;
+        }
+
+        sellersData.forEach((s, index) => {
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.style.background = 'rgba(255,255,255,0.03)';
+            div.style.padding = '1rem';
+            div.style.borderRadius = '8px';
+            div.style.border = '1px solid rgba(255,255,255,0.1)';
+
+            const currentUrl = window.location.origin;
+            const refLink = `${currentUrl}/?ref=${s.id || 'ID'}`;
+
+            div.innerHTML = `
+                <div style="flex:1;">
+                    <input type="text" class="seller-name-input" data-index="${index}" placeholder="Nombre Completo" value="${s.name || ''}" style="margin-bottom:0.5rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <input type="text" class="seller-id-input" data-index="${index}" placeholder="Usuario (ej. juan)" value="${s.id || ''}" style="flex:1;">
+                        <input type="text" class="seller-pass-input" data-index="${index}" placeholder="Contraseña" value="${s.password || ''}" style="flex:1;">
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center; padding-left: 1rem;">
+                    <button type="button" class="btn btn-copy-seller" data-link="${refLink}" style="background-color: white; color: black; border: none; font-weight: 600; padding:0.4rem 0.8rem; border-radius: 4px;">
+                        <i data-lucide="copy" style="width:14px; margin-right:4px;"></i> Copiar URL
+                    </button>
+                    <button type="button" class="btn btn-outline btn-delete-seller" data-index="${index}" style="padding:0.4rem 0.8rem; color:#ff4444; border-color:#ff4444;">
+                        <i data-lucide="trash-2" style="width:14px;"></i> Eliminar
+                    </button>
+                </div>
+            `;
+            sellersContainer.appendChild(div);
+        });
+
+        // Add Listeners
+        document.querySelectorAll('.seller-id-input').forEach(el => {
+            el.addEventListener('input', (e) => {
+                sellersData[e.target.dataset.index].id = e.target.value.trim().toLowerCase();
+            });
+        });
+        document.querySelectorAll('.seller-name-input').forEach(el => {
+            el.addEventListener('input', (e) => {
+                sellersData[e.target.dataset.index].name = e.target.value;
+            });
+        });
+        document.querySelectorAll('.seller-pass-input').forEach(el => {
+            el.addEventListener('input', (e) => {
+                sellersData[e.target.dataset.index].password = e.target.value;
+            });
+        });
+        document.querySelectorAll('.btn-delete-seller').forEach(el => {
+            el.addEventListener('click', (e) => {
+                sellersData.splice(e.currentTarget.dataset.index, 1);
+                renderSellers();
+            });
+        });
+        document.querySelectorAll('.btn-copy-seller').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const link = e.currentTarget.dataset.link;
+                navigator.clipboard.writeText(link).then(() => {
+                    const originalText = e.currentTarget.innerHTML;
+                    e.currentTarget.innerHTML = '<i data-lucide="check" style="width:16px;"></i> Copiado';
+                    if (window.lucide) window.lucide.createIcons();
+                    setTimeout(() => {
+                        e.currentTarget.innerHTML = originalText;
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 2000);
+                });
+            });
+        });
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    };
+
     // Helper para hacer fetch con el token
     const fetchWithAuth = async (url, options = {}) => {
         const token = localStorage.getItem('santuario_admin_token');
@@ -187,8 +275,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.success) {
                 localStorage.setItem('santuario_admin_token', data.token);
+                localStorage.setItem('santuario_user_role', data.role); // 'admin' o 'seller'
                 loginOverlay.classList.add('hidden');
                 loginPassword.value = '';
+                applyRoleRestrictions(data.role);
                 loadContent(); // Cargar los datos al loguearse con éxito
             } else {
                 showFeedback(loginFeedback, 'Credenciales incorrectas.', 'error');
@@ -200,6 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btnLogin.disabled = false;
         }
     });
+
+    const applyRoleRestrictions = (role) => {
+        if (role === 'seller') {
+            // Ocultar la sección de crear vendedores para que un vendedor no cree otros
+            const sellerSection = document.getElementById('btn-add-seller').closest('.admin-section');
+            if (sellerSection) sellerSection.style.display = 'none';
+        } else {
+            const sellerSection = document.getElementById('btn-add-seller').closest('.admin-section');
+            if (sellerSection) sellerSection.style.display = 'block';
+        }
+    };
+
 
     // 1. Cargar datos iniciales
     const loadContent = async () => {
@@ -255,6 +357,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.coupons) {
                 couponsData = data.coupons;
                 renderCoupons();
+            }
+
+            // Poblar vendedores
+            if (data.sellers) {
+                sellersData = data.sellers;
+                renderSellers();
             }
 
             // Poblar galería
@@ -398,6 +506,39 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             btnSaveCoupons.textContent = 'Guardar Cambios de Cupones';
             btnSaveCoupons.disabled = false;
+        }
+    });
+
+    // 1.4.5 Gestionar Vendedores
+    btnAddSeller.addEventListener('click', () => {
+        sellersData.push({ id: '', name: '', paymentLinks: { card: '', paypal: '', crypto: '' } });
+        renderSellers();
+    });
+
+    btnSaveSellers.addEventListener('click', async () => {
+        btnSaveSellers.textContent = 'Guardando...';
+        btnSaveSellers.disabled = true;
+
+        const payload = { sellers: sellersData };
+
+        try {
+            const res = await fetchWithAuth(`${API_URL}/sellers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                showFeedback(sellersFeedback, 'Vendedores actualizados correctamente.', 'success');
+                renderSellers(); // to update copy links based on new ID
+            } else {
+                throw new Error('Error al guardar');
+            }
+        } catch (error) {
+            showFeedback(sellersFeedback, 'Error al guardar vendedores.', 'error');
+        } finally {
+            btnSaveSellers.textContent = 'Guardar Cambios de Vendedores';
+            btnSaveSellers.disabled = false;
         }
     });
 
@@ -547,7 +688,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Iniciar: si hay token intentamos cargar, si no, mostramos login
-    if (localStorage.getItem('santuario_admin_token')) {
+    const savedToken = localStorage.getItem('santuario_admin_token');
+    const savedRole = localStorage.getItem('santuario_user_role');
+    if (savedToken) {
+        if (savedRole) applyRoleRestrictions(savedRole);
         loadContent().catch(() => loginOverlay.classList.remove('hidden'));
     } else {
         loginOverlay.classList.remove('hidden');

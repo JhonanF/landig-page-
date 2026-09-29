@@ -48,5 +48,17 @@
       "url": "",
       "active": true
     }
+  ],
+  "sellers": [
+    {
+      "id": "juanito",
+      "name": "juanito aldave ",
+      "paymentLinks": {
+        "card": "",
+        "paypal": "",
+        "crypto": ""
+      },
+      "password": "258555"
+    }
   ]
 }

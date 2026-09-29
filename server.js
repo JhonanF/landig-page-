@@ -10,21 +10,55 @@ const DATA_FILE = path.join(__dirname, 'data.json');
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // ─── CREDENCIALES Y TOKEN ─────────────────────────────────
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'santuario2024';
-const SECRET_TOKEN = 'santuario-secure-token-x89'; // Token simple estático
+const SECRET_TOKEN = 'santuario-secure-token-x89'; 
+
+// Cargar data.json una sola vez al arrancar. Las lecturas posteriores se
+// atienden desde memoria; el disco solo se toca cuando hay una escritura.
+function loadData() {
+    try {
+        const data = fs.readFileSync(DATA_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (err) {
+        console.error('No se pudo cargar data.json; se usarán datos vacíos.', err);
+        return { videoUrl: "", carouselImages: [], sellers: [] };
+    }
+}
+
+let appData = loadData();
+
+function readData() {
+    return appData;
+}
+
+function writeData(data) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    appData = data;
+}
 
 // ─── MIDDLEWARE DE AUTENTICACIÓN (API) ────────────────────
 const apiAuthMiddleware = (req, res, next) => {
-    // Solo protegemos las rutas de escritura de la API
     if (req.path.startsWith('/api/content') && (req.method === 'POST' || req.method === 'DELETE')) {
         const authHeader = req.headers.authorization || '';
         const token = authHeader.split(' ')[1];
         
-        if (token !== SECRET_TOKEN) {
+        if (token === SECRET_TOKEN) {
+            req.userRole = 'admin';
+        } else if (token && token.startsWith('seller-')) {
+            const data = readData();
+            const sellerId = token.split('seller-')[1];
+            const seller = (data.sellers || []).find(s => s.id === sellerId);
+            if (seller) {
+                req.userRole = 'seller';
+                req.sellerId = sellerId;
+            } else {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+        } else {
             return res.status(401).json({ error: 'No autorizado' });
         }
     }
@@ -33,223 +67,270 @@ const apiAuthMiddleware = (req, res, next) => {
 
 app.use(apiAuthMiddleware);
 
-// Ruta de Login para obtener el token
+// Ruta de Login Inteligente
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
+    
+    // Check si es Admin
     if (username === ADMIN_USER && password === ADMIN_PASS) {
-        res.json({ success: true, token: SECRET_TOKEN });
-    } else {
-        res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+        return res.json({ success: true, token: SECRET_TOKEN, role: 'admin' });
     }
+    
+    // Check si es Vendedor
+    const data = readData();
+    const seller = (data.sellers || []).find(s => s.id === username && s.password === password);
+    if (seller) {
+        return res.json({ success: true, token: `seller-${seller.id}`, role: 'seller' });
+    }
+    
+    res.status(401).json({ success: false, error: 'Credenciales inválidas' });
 });
 
-// Serve static files from root (for index.html, css, js, uploads)
-app.use(express.static(__dirname));
+// Interceptar la raíz para servir el HTML correcto (Master o Seller custom)
+app.get('/', (req, res) => {
+    const ref = req.query.ref;
+    if (ref) {
+        const data = readData();
+        const seller = (data.sellers || []).find(s => s.id.toLowerCase() === ref.toLowerCase());
+        if (seller && seller.customHtml) {
+            return res.send(seller.customHtml);
+        }
+    }
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-// Ensure uploads directory exists
+// Serve static files from root (CSS, JS, uploads, etc.), ignorando '/' para no pisar el app.get de arriba
+app.use(express.static(__dirname, { index: false }));
+
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
-// Setup Multer for image uploads
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        // Unique filename
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// Helper to read data
-function readData() {
-    try {
-        const data = fs.readFileSync(DATA_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        return { videoUrl: "", carouselImages: [] };
-    }
-}
 
-// Helper to write data
-function writeData(data) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+// Helper: Actualiza data general o data específica del vendedor
+function updateContent(req, key, value, data) {
+    if (req.userRole === 'admin') {
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+            data[key] = { ...data[key], ...value };
+        } else {
+            data[key] = value;
+        }
+    } else if (req.userRole === 'seller') {
+        const seller = data.sellers.find(s => s.id === req.sellerId);
+        seller.customizations = seller.customizations || {};
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+            seller.customizations[key] = { ...seller.customizations[key], ...value };
+        } else {
+            seller.customizations[key] = value;
+        }
+    }
 }
 
 // API: Get content
 app.get('/api/content', (req, res) => {
     const data = readData();
-    
-    // Si no hay token de administrador válido, ocultamos la información confidencial (cupones)
     const authHeader = req.headers.authorization || '';
     const token = authHeader.split(' ')[1];
     
-    if (token !== SECRET_TOKEN) {
-        // Enviar solo datos públicos
-        const publicData = { ...data };
-        delete publicData.coupons; 
-        return res.json(publicData);
+    if (token === SECRET_TOKEN) {
+        // Master admin ve todo
+        return res.json(data);
+    } else if (token && token.startsWith('seller-')) {
+        // Vendedor ve su propia customización mezclada (solo él sabe sus cupones, links, etc.)
+        const sellerId = token.split('seller-')[1];
+        const seller = (data.sellers || []).find(s => s.id === sellerId);
+        if (seller) {
+            // Le devolvemos un objeto similar a data pero con SUS cosas
+            const sellerData = { ...(seller.customizations || {}) };
+            // Tambien devolvemos algunas cosas globales por defecto si no las ha tocado
+            return res.json(sellerData);
+        }
     }
     
-    // Si es admin, enviamos todo
-    res.json(data);
+    // Público: ocultar cupones
+    const publicData = { ...data };
+    delete publicData.coupons; 
+    
+    // Si la visita pública viene con ?ref=vendedor, sobrescribimos los datos con los de él
+    if (req.query.ref) {
+        const seller = (data.sellers || []).find(s => s.id.toLowerCase() === req.query.ref.toLowerCase());
+        if (seller && seller.customizations) {
+            if (seller.customizations.offer) publicData.offer = seller.customizations.offer;
+            if (seller.customizations.paymentLinks) publicData.paymentLinks = seller.customizations.paymentLinks;
+            if (seller.customizations.videoUrl) publicData.videoUrl = seller.customizations.videoUrl;
+            if (seller.customizations.socialLinks) publicData.socialLinks = seller.customizations.socialLinks;
+            if (seller.customizations.carouselImages && seller.customizations.carouselImages.length > 0) {
+                publicData.carouselImages = seller.customizations.carouselImages;
+            }
+        }
+    }
+    
+    res.json(publicData);
 });
 
 // API: Validate Coupon (Público)
 app.post('/api/validate-coupon', (req, res) => {
-    const { code } = req.body;
-    if (!code) {
-        return res.status(400).json({ error: 'Código requerido' });
-    }
+    const { code, ref } = req.body;
+    if (!code) return res.status(400).json({ error: 'Código requerido' });
     
     const data = readData();
-    const coupons = data.coupons || [];
+    let coupons = data.coupons || [];
+    
+    // Si hay ref, buscar cupones del vendedor primero
+    if (ref) {
+        const seller = (data.sellers || []).find(s => s.id.toLowerCase() === ref.toLowerCase());
+        if (seller && seller.customizations && seller.customizations.coupons) {
+            coupons = seller.customizations.coupons; // Usa los del vendedor
+        }
+    }
     
     const coupon = coupons.find(c => c.code.toLowerCase() === code.toLowerCase() && c.active !== false);
-    
     if (coupon) {
-        // Retornamos el cupón (que contiene el mensaje y los paymentLinks rebajados)
         return res.json({ success: true, coupon });
     } else {
         return res.status(404).json({ error: 'Cupón no válido o expirado' });
     }
 });
 
-// API: Update coupons (Admin)
+// Endpoints Universales (Admin y Sellers)
 app.post('/api/content/coupons', (req, res) => {
-    const { coupons } = req.body;
-    if (!Array.isArray(coupons)) {
-        return res.status(400).json({ error: 'coupons array is required' });
-    }
     const data = readData();
-    data.coupons = coupons;
+    updateContent(req, 'coupons', req.body.coupons, data);
     writeData(data);
-    res.json({ success: true, data });
+    res.json({ success: true });
 });
 
-// API: Update offer (Admin)
 app.post('/api/content/offer', (req, res) => {
-    const { offer } = req.body;
-    if (!offer || typeof offer !== 'object') {
-        return res.status(400).json({ error: 'offer object is required' });
-    }
     const data = readData();
-    data.offer = { ...data.offer, ...offer };
+    updateContent(req, 'offer', req.body.offer, data);
     writeData(data);
-    res.json({ success: true, data });
+    res.json({ success: true });
 });
 
-// API: Update video URL
 app.post('/api/content/video', (req, res) => {
-    const { videoUrl } = req.body;
-    if (typeof videoUrl !== 'string') {
-        return res.status(400).json({ error: 'videoUrl is required' });
-    }
     const data = readData();
-    data.videoUrl = videoUrl;
+    updateContent(req, 'videoUrl', req.body.videoUrl, data);
     writeData(data);
-    res.json({ success: true, data });
+    res.json({ success: true });
 });
 
-// API: Update social links
 app.post('/api/content/social', (req, res) => {
-    const { socialLinks } = req.body;
-    if (!socialLinks || typeof socialLinks !== 'object') {
-        return res.status(400).json({ error: 'socialLinks object is required' });
-    }
     const data = readData();
-    data.socialLinks = { ...data.socialLinks, ...socialLinks };
+    updateContent(req, 'socialLinks', req.body.socialLinks, data);
+    writeData(data);
+    res.json({ success: true });
+});
+
+app.post('/api/content/payments', (req, res) => {
+    const data = readData();
+    updateContent(req, 'paymentLinks', req.body.paymentLinks, data);
+    writeData(data);
+    res.json({ success: true });
+});
+
+// API: Update sellers (SOLO ADMIN MASTER)
+app.post('/api/content/sellers', (req, res) => {
+    if (req.userRole !== 'admin') return res.status(403).json({ error: 'Prohibido' });
+    
+    const { sellers } = req.body;
+    const data = readData();
+    
+    // Fusionar inteligentemente para no perder "customizations" al editar
+    const existingSellers = data.sellers || [];
+    const updatedSellers = sellers.map(newS => {
+        const existing = existingSellers.find(s => s.id === newS.id);
+        if (existing) {
+            return { ...existing, name: newS.name, id: newS.id, password: newS.password };
+        }
+        return { ...newS, customizations: {} };
+    });
+    
+    data.sellers = updatedSellers;
     writeData(data);
     res.json({ success: true, data });
 });
 
-// API: Update payment links
-app.post('/api/content/payments', (req, res) => {
-    const { paymentLinks } = req.body;
-    if (!paymentLinks || typeof paymentLinks !== 'object') {
-        return res.status(400).json({ error: 'paymentLinks object is required' });
-    }
+// API: Get Seller specific content (Público, usado por la landing)
+app.get('/api/seller/:id', (req, res) => {
     const data = readData();
-    data.paymentLinks = { ...data.paymentLinks, ...paymentLinks };
-    writeData(data);
-    res.json({ success: true, data });
+    const sellers = data.sellers || [];
+    const seller = sellers.find(s => s.id.toLowerCase() === req.params.id.toLowerCase());
+    
+    if (seller) {
+        res.json({ success: true, seller: { name: seller.name, id: seller.id, customizations: seller.customizations || {} } });
+    } else {
+        res.status(404).json({ error: 'Vendedor no encontrado' });
+    }
 });
 
 // API: Save entire HTML (Live Editor)
 app.post('/api/content/html', (req, res) => {
     const { html } = req.body;
-    if (!html || typeof html !== 'string') {
-        return res.status(400).json({ error: 'HTML string is required' });
-    }
+    const data = readData();
 
-    const indexPath = path.join(__dirname, 'index.html');
-    const backupsDir = path.join(__dirname, 'backups');
-
-    // Create backups dir if not exists
-    if (!fs.existsSync(backupsDir)) {
-        fs.mkdirSync(backupsDir);
-    }
-
-    try {
-        // 1. Create a backup of current index.html
+    if (req.userRole === 'admin') {
+        const indexPath = path.join(__dirname, 'index.html');
+        const backupsDir = path.join(__dirname, 'backups');
+        if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir);
         if (fs.existsSync(indexPath)) {
-            const currentHtml = fs.readFileSync(indexPath, 'utf8');
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            fs.writeFileSync(path.join(backupsDir, `index-${timestamp}.html`), currentHtml);
+            fs.writeFileSync(path.join(backupsDir, `index-${Date.now()}.html`), fs.readFileSync(indexPath, 'utf8'));
         }
-
-        // 2. Overwrite index.html
         fs.writeFileSync(indexPath, html);
-        res.json({ success: true, message: 'Landing Page actualizada correctamente' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al guardar el HTML' });
+    } else if (req.userRole === 'seller') {
+        const seller = data.sellers.find(s => s.id === req.sellerId);
+        seller.customHtml = html;
+        writeData(data);
     }
+    res.json({ success: true });
 });
 
-// API: Upload image
+// API: Upload image (Maneja admin y seller)
 app.post('/api/content/images', upload.single('image'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No image file provided' });
-    }
+    if (!req.file) return res.status(400).json({ error: 'No image' });
     const data = readData();
-    // The path we send to the client (relative to root)
     const imageUrl = `uploads/${req.file.filename}`;
-    data.carouselImages.push(imageUrl);
+    
+    if (req.userRole === 'admin') {
+        data.carouselImages = data.carouselImages || [];
+        data.carouselImages.push(imageUrl);
+    } else if (req.userRole === 'seller') {
+        const seller = data.sellers.find(s => s.id === req.sellerId);
+        seller.customizations = seller.customizations || {};
+        seller.customizations.carouselImages = seller.customizations.carouselImages || [];
+        seller.customizations.carouselImages.push(imageUrl);
+    }
     writeData(data);
-    res.json({ success: true, imageUrl, data });
+    res.json({ success: true, imageUrl });
 });
 
 // API: Delete image
 app.delete('/api/content/images', (req, res) => {
     const { imageUrl } = req.body;
-    if (!imageUrl) {
-        return res.status(400).json({ error: 'imageUrl is required' });
-    }
+    const data = readData();
     
-    let data = readData();
-    data.carouselImages = data.carouselImages.filter(img => img !== imageUrl);
-    writeData(data);
-
-    // Also delete the physical file if it's in the uploads folder
-    if (imageUrl.startsWith('uploads/')) {
-        const filePath = path.join(__dirname, imageUrl);
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+    if (req.userRole === 'admin') {
+        data.carouselImages = (data.carouselImages || []).filter(img => img !== imageUrl);
+    } else if (req.userRole === 'seller') {
+        const seller = data.sellers.find(s => s.id === req.sellerId);
+        if (seller && seller.customizations && seller.customizations.carouselImages) {
+            seller.customizations.carouselImages = seller.customizations.carouselImages.filter(img => img !== imageUrl);
         }
     }
-
-    res.json({ success: true, data });
-});
-
-// Fallback to serve index.html for root
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    writeData(data);
+    if (imageUrl.startsWith('uploads/')) {
+        const filePath = path.join(__dirname, imageUrl);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    res.json({ success: true });
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor Admin corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
