@@ -180,11 +180,6 @@
     height: 100%;
     pointer-events: auto;
 }
-
-/* Reemplazo estático del modelo: solo se muestra en pantallas pequeñas. */
-.hero-mobile-fallback {
-    display: none;
-}
 /* --- Layer 4: Carrusel Infinito --- */
 .carousel-layer {
     z-index: 2; /* Encima del bg(1) debajo del texto(3) y fg(4) */
@@ -219,9 +214,13 @@
     min-width: max-content;
     align-items: center;
     gap: var(--marquee-gap);
-    padding-inline-end: var(--marquee-gap);
+    /* Padding en flex falla en algunos móviles al calcular max-content (-100%) */
     animation: marqueeMove var(--marquee-duration) linear infinite;
     will-change: transform;
+}
+
+.marquee-track > :last-child {
+    margin-right: var(--marquee-gap);
 }
 
 .carousel-img {
@@ -255,14 +254,6 @@
         box-shadow: 0 12px 35px rgba(223, 186, 83, 0.16);
     }
 }
-/* --- Botón Magnético --- */
-.magnetic-wrap {
-    position: absolute;
-    bottom: 15vh;
-    padding: 2rem;
-    z-index: 4;
-}
-
 .btn-magnetic {
     position: relative;
     display: inline-flex;
@@ -1423,29 +1414,6 @@
         pointer-events: none !important;
     }
 
-    .hero-mobile-fallback {
-        position: absolute;
-        inset: 0;
-        display: block;
-        pointer-events: none;
-        overflow: hidden;
-    }
-
-    .hero-mobile-fallback::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, rgba(5, 7, 10, 0.35), rgba(5, 7, 10, 0.8));
-    }
-
-    .hero-mobile-fallback img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        opacity: 0.42;
-    }
-
     /* Título monumental: clamp seguro que no desborda en pantallas estrechas */
     .monumental-title {
         font-size: clamp(2rem, 8vw, 5rem);
@@ -1568,10 +1536,10 @@
         font-size: 1.4rem;
     }
 
-    /* Carrusel infinito: imágenes más compactas */
+    /* Carrusel infinito: imágenes más compactas, espaciado ajustado para evitar ahogo */
     .marquee-wrapper {
-        --marquee-gap: clamp(10px, 3vw, 14px);
-        --carousel-card-width: clamp(150px, 43vw, 185px);
+        --marquee-gap: clamp(18px, 5vw, 22px);
+        --carousel-card-width: clamp(135px, 38vw, 165px);
         mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
         -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
     }
@@ -1818,29 +1786,6 @@
         pointer-events: none !important;
     }
 
-    .hero-mobile-fallback {
-        position: absolute;
-        inset: 0;
-        display: block;
-        pointer-events: none;
-        overflow: hidden;
-    }
-
-    .hero-mobile-fallback::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, rgba(3, 5, 8, 0.3), rgba(3, 5, 8, 0.82));
-    }
-
-    .hero-mobile-fallback img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        opacity: 0.38;
-    }
-
     .vsl-video-wrapper,
     .platform-card,
     .pilar-card,
@@ -1852,12 +1797,29 @@
 @media (max-width: 768px) {
     .cinematic-hero {
         width: 100%;
-        height: 100dvh;
+        height: auto;
         min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding-top: clamp(6rem, 15vh, 8rem);
+        padding-bottom: 3rem;
+        overflow-x: hidden;
     }
 
     .parallax-layer {
+        position: relative !important;
+        height: auto !important;
         will-change: auto;
+        transform: none !important;
+    }
+
+    .parallax-layer.bg-layer {
+        position: absolute !important;
+        top: 0; left: 0; right: 0; bottom: 0;
+        height: 100% !important;
+        z-index: 0;
     }
 
     .glow-vignette {
@@ -1875,8 +1837,11 @@
     }
 
     .text-layer {
-        align-items: flex-start;
-        padding-top: clamp(10rem, 25dvh, 13rem);
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        align-items: center;
+        padding-top: 0;
     }
 
     .text-wrapper {
@@ -1924,33 +1889,22 @@
         height: 38px;
     }
 
-    .magnetic-wrap {
-        bottom: max(4.75rem, calc(3.75rem + env(safe-area-inset-bottom)));
-        width: 100%;
-        padding: 0 1rem;
-    }
-
-    .magnetic-wrap .btn-magnetic {
-        width: min(100%, 330px);
-        min-height: 52px;
-        padding: 0.9rem 1.25rem;
-        font-size: 0.9rem;
-        border-radius: var(--radius-pill);
-        box-shadow: 0 8px 24px rgba(0, 255, 136, 0.2);
-    }
-
     .scroll-indicator {
         display: none;
     }
 
     .carousel-layer {
-        opacity: 0.22;
-        transform: translateY(27vh) scale(0.94);
+        opacity: 0.75 !important;
+        transform: none !important;
         filter: none;
+        margin-top: 48px;
+        z-index: 3;
+        display: block !important;
+        width: 100vw;
     }
 
     .carousel-img {
-        filter: brightness(0.42);
+        filter: brightness(0.65);
         border-radius: 18px;
     }
 
@@ -2330,9 +2284,9 @@
     }
 
     .floating-socials {
-        right: 0.75rem;
-        bottom: max(5rem, calc(4.25rem + env(safe-area-inset-bottom)));
-        gap: 0.55rem;
+        right: 0.5rem;
+        bottom: max(1.5rem, env(safe-area-inset-bottom));
+        gap: 0.5rem;
         transition: opacity 180ms ease, visibility 180ms ease;
     }
 
@@ -2343,15 +2297,15 @@
     }
 
     .social-btn {
-        width: 44px;
-        height: 44px;
+        width: 38px;
+        height: 38px;
         backdrop-filter: blur(6px);
         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
     }
 
     .social-btn svg {
-        width: 21px;
-        height: 21px;
+        width: 18px;
+        height: 18px;
     }
 }
 
@@ -2423,10 +2377,6 @@
     .stat-divider {
         width: 1px;
         height: 32px;
-    }
-
-    .magnetic-wrap {
-        bottom: max(0.75rem, env(safe-area-inset-bottom));
     }
 
     .modal-box {

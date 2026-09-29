@@ -355,7 +355,6 @@ const initHeroScrollAnimation = () => {
     if (desktopEffects) {
         tlScroll
             .to(".text-layer", { scale: 1.25, opacity: 0, y: -150, duration: 1 }, 0)
-            .to(".magnetic-wrap", { scale: 0.6, opacity: 0, y: 100, duration: 1 }, 0)
             .to(".bg-layer", { scale: 1.15, opacity: 0.3, duration: 1.2 }, 0)
             .to(".scroll-indicator", { opacity: 0, y: 50, duration: 0.4 }, 0)
             .fromTo(".carousel-layer",
@@ -368,7 +367,6 @@ const initHeroScrollAnimation = () => {
     // Tablet: transición ligera, sin pin ni blur.
     tlScroll
         .to(".text-layer", { scale: 1.06, opacity: 0.25, y: -40, duration: 1 }, 0)
-        .to(".magnetic-wrap", { opacity: 0, y: 30, duration: 0.8 }, 0)
         .to(".bg-layer", { scale: 1.03, opacity: 0.55, duration: 1 }, 0)
         .fromTo(".carousel-layer",
             { opacity: 0, scale: 0.96 },
@@ -694,26 +692,19 @@ const renderVideo = async (value) => {
 
 window.SantuarioVideo = Object.freeze({ detectVideoType, renderVideo });
 
-const MIN_CAROUSEL_ITEMS = 8;
 const MAX_CAROUSEL_ITEMS = 40;
 
 /**
- * Genera una secuencia suficientemente larga para cubrir el viewport sin
- * multiplicar innecesariamente galerías que ya tienen muchas imágenes.
+ * Devuelve la secuencia de imágenes sin duplicarlas artificialmente.
  * @param {unknown} images
  * @returns {string[]}
  */
 const getCarouselSequence = (images) => {
     if (!Array.isArray(images)) return [];
 
-    const sourceImages = images
+    return images
         .filter(image => typeof image === 'string' && image.trim() !== '')
         .slice(0, MAX_CAROUSEL_ITEMS);
-
-    if (sourceImages.length === 0) return [];
-
-    const itemCount = Math.max(MIN_CAROUSEL_ITEMS, sourceImages.length);
-    return Array.from({ length: itemCount }, (_, index) => sourceImages[index % sourceImages.length]);
 };
 
 /**
@@ -766,7 +757,10 @@ const renderHeroCarousel = (images) => {
         return;
     }
 
-    const durationSeconds = Math.min(240, Math.max(56, sequence.length * 7));
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const baseDuration = isMobile ? 70 : 40;
+    const timePerImage = isMobile ? 10 : 7;
+    const durationSeconds = Math.min(300, Math.max(baseDuration, sequence.length * timePerImage));
     wrapper.style.setProperty('--marquee-duration', `${durationSeconds}s`);
 };
 

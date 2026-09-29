@@ -1,12 +1,12 @@
 {
-  "videoUrl": "https://cdn.coverr.co/videos/coverr-a-man-in-a-suit-working-on-his-laptop-in-a-modern-office-2651/1080p.mp4",
+  "videoUrl": "https://youtu.be/uToSf4-ixOM?si=QMZ-BRLNKQxnyM9v",
   "carouselImages": [
-    "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1555529733-0e67056058e1?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1503376712353-33e14f6d2f34?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=600&auto=format&fit=crop",
-    "uploads/1790029519871.png"
+    "src/img/santuario-carousel.webp",
+    "uploads/1790653559647-605808214.png",
+    "uploads/1790653569609-83246120.png",
+    "uploads/1790653584506-24232809.png",
+    "uploads/1790653591251-778932670.png",
+    "uploads/1790653597733-93250494.png"
   ],
   "socialLinks": {
     "whatsapp": {
@@ -51,14 +51,15 @@
   ],
   "sellers": [
     {
-      "id": "juanito",
+      "id": "lobo",
       "name": "juanito aldave ",
       "paymentLinks": {
         "card": "",
         "paypal": "",
         "crypto": ""
       },
-      "password": "258555"
+      "password": "123456",
+      "customizations": {}
     }
   ]
 }
