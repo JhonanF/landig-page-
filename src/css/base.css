@@ -46,7 +46,6 @@ input, textarea, select {
 /* Evitar arrastre de imágenes/links */
 a, img, video {
     -webkit-user-drag: none;
-    user-drag: none;
 }
 
 /* ─── CAPA 1: REJILLA TÁCTICA 3D ──────────────────────────── */

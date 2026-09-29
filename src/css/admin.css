@@ -339,9 +339,7 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 
-.input-group input[type="url"] {
-    /* Mantenido via selector grupal arriba */
-}
+
 
 .hidden-input {
     position: absolute;
