@@ -411,6 +411,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw createRequestError('api', 'Sesión expirada. Inicia sesión nuevamente.', { status: 401 });
+            }
+            if (response.status === 500) {
+                throw createRequestError('api', 'Error interno del servidor.', { status: 500 });
+            }
             if (result && typeof result.error === 'string' && result.error) {
                 throw createRequestError('api', result.error, { status: response.status });
             }
@@ -432,10 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const getCarouselImagesFromResponse = (result) => {
         const images = result?.data?.carouselImages;
         if (!Array.isArray(images)) {
-            throw createRequestError(
-                'response',
-                'La respuesta del servidor no contiene una galería válida.'
-            );
+            return null; // Return null instead of throwing, so caller can recover
         }
         return images;
     };
@@ -501,8 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar datos iniciales
     const loadContent = async () => {
         try {
-            const res = await fetchWithAuth(API_URL);
-            const data = await res.json();
+            const data = await requestJson(API_URL);
             
             // Poblar video
             if (data.videoUrl) {
@@ -909,7 +911,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            const carouselImages = getCarouselImagesFromResponse(result);
+            let carouselImages = getCarouselImagesFromResponse(result);
+            if (!carouselImages) {
+                console.warn('[Carousel Upload] Payload inesperado, resincronizando galería...');
+                const data = await requestJson(API_URL);
+                carouselImages = data.carouselImages || [];
+            }
+            
             imageUpload.value = '';
             fileNameDisplay.textContent = 'Ningún archivo seleccionado';
             renderGallery(carouselImages);
@@ -938,7 +946,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ imageUrl })
             });
 
-            renderGallery(getCarouselImagesFromResponse(result));
+            let carouselImages = getCarouselImagesFromResponse(result);
+            if (!carouselImages) {
+                console.warn('[Carousel Delete] Payload inesperado, resincronizando galería...');
+                const data = await requestJson(API_URL);
+                carouselImages = data.carouselImages || [];
+            }
+
+            renderGallery(carouselImages);
             showFeedback(imageFeedback, 'Imagen eliminada correctamente.', 'success');
         } catch (error) {
             console.error('[Carousel Delete]', error);

@@ -121,6 +121,18 @@ const getPublicUrl = () => {
     return publicUrl;
 };
 
+const cleanupEditorRuntime = () => {
+    cleanEditorArtifacts(document);
+    document.body.classList.remove('editor-mode');
+};
+
+window.addEventListener('pageshow', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('edit') !== 'true') {
+        cleanupEditorRuntime();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const isEditMode = urlParams.get('edit') === 'true';
@@ -164,7 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('editor-cancel').addEventListener('click', () => {
         if (confirm('¿Descartar cambios y salir del modo edición?')) {
-            window.location.href = getPublicUrl().href;
+            cleanupEditorRuntime();
+            window.location.replace(getPublicUrl().href);
         }
     });
 
@@ -222,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             saveSucceeded = true;
-            cleanEditorArtifacts(document);
+            cleanupEditorRuntime();
             alert('✓ Cambios guardados correctamente');
-            window.location.href = getPublicUrl().href;
+            window.location.replace(getPublicUrl().href);
         } catch (error) {
             console.error('[Visual Editor Save]', error);
             alert('Error al guardar: ' + error.message);

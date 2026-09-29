@@ -100,7 +100,17 @@ app.get('/', (req, res) => {
 });
 
 // Serve static files from root (CSS, JS, uploads, etc.), ignorando '/' para no pisar el app.get de arriba
-app.use(express.static(__dirname, { index: false }));
+app.use(express.static(__dirname, { 
+    index: false,
+    setHeaders: (res, filepath) => {
+        if (filepath.endsWith('admin.html') || 
+            filepath.endsWith('admin.js') || 
+            filepath.endsWith('editor.js') || 
+            filepath.endsWith('editor.css')) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
+    }
+}));
 
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -435,10 +445,17 @@ app.post('/api/content/images', handleImageUpload, (req, res) => {
 
     carouselImages.push(imageUrl);
     writeData(data);
+    
     res.json({
         success: true,
         imageUrl,
         data: { carouselImages: [...carouselImages] }
+    });
+
+    console.info('[Carousel Upload]', {
+        role: req.userRole,
+        file: imageUrl,
+        total: carouselImages.length
     });
 });
 
@@ -461,15 +478,27 @@ app.delete('/api/content/images', (req, res) => {
     updateContent(req, 'carouselImages', updatedCarouselImages, data);
     writeData(data);
 
-    const filePath = resolveLocalUploadPath(imageUrl);
-    if (imageWasReferenced && filePath && !isCarouselImageReferenced(data, imageUrl)) {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-
     res.json({
         success: true,
         data: { carouselImages: [...updatedCarouselImages] }
     });
+
+    console.info('[Carousel Delete]', {
+        role: req.userRole,
+        imageUrl,
+        total: updatedCarouselImages.length
+    });
+
+    const filePath = resolveLocalUploadPath(imageUrl);
+    if (imageWasReferenced && filePath && !isCarouselImageReferenced(data, imageUrl)) {
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (error) {
+                console.warn('[Carousel Delete File]', error);
+            }
+        }
+    }
 });
 
 app.listen(PORT, () => {
