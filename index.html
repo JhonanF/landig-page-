@@ -49,7 +49,7 @@
             <nav class="nav-inner" aria-label="Navegación principal">
                 <!-- Logo -->
                 <a href="#" class="nav-logo" aria-label="Santuario del Hombre — Inicio">
-                    <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="nav-logo-img">
+                    <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="nav-logo-img" width="48" height="48" decoding="async">
                 </a>
 
                 <!-- Links -->
@@ -155,12 +155,14 @@
                 <div class="vsl-glow" aria-hidden="true"></div>
                 <div class="vsl-video-wrapper tilt-video reveal">
                     <!-- Marco Glassmorphic -->
-                    <div class="vsl-glass-frame">
-                        <video id="main-vsl-video" class="vsl-video" poster="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1200&auto=format&fit=crop" controls preload="metadata">
-                            <!-- El source se cargará dinámicamente -->
-                            <source id="vsl-video-source" src="" type="video/mp4">
-                            Tu navegador no soporta el formato de video.
-                        </video>
+                    <div
+                        id="video-player-container"
+                        class="vsl-glass-frame vsl-player-container"
+                        data-poster="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1200&auto=format&fit=crop"
+                        aria-live="polite"
+                        aria-busy="true"
+                    >
+                        <div class="vsl-player-loading">Cargando video...</div>
                     </div>
                 </div>
             </div>
@@ -494,7 +496,7 @@
     <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-logo">
-                <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="footer-logo-img">
+                <img src="./src/img/logo-santuario.jpg" alt="Logo Santuario del Hombre" class="footer-logo-img" width="80" height="80" loading="lazy" decoding="async">
             </div>
             <p class="footer-desc">
                 Todos los derechos reservados. El conocimiento es poder.<br>

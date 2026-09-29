@@ -107,11 +107,54 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const IMAGE_EXTENSIONS = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp'
+};
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+        cb(null, `${uniqueSuffix}${IMAGE_EXTENSIONS[file.mimetype]}`);
+    }
 });
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: { fileSize: MAX_IMAGE_SIZE },
+    fileFilter: (req, file, cb) => {
+        if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
+            return cb(null, true);
+        }
+
+        const error = new Error('Formato de imagen no permitido');
+        error.code = 'INVALID_IMAGE_TYPE';
+        cb(error);
+    }
+});
+
+const handleImageUpload = (req, res, next) => {
+    upload.single('image')(req, res, (error) => {
+        if (!error) return next();
+
+        if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({
+                success: false,
+                error: 'La imagen supera el tamaño máximo permitido de 10 MB'
+            });
+        }
+
+        if (error.code === 'INVALID_IMAGE_TYPE') {
+            return res.status(400).json({ success: false, error: error.message });
+        }
+
+        console.error('[Carousel Upload]', error);
+        return res.status(400).json({ success: false, error: 'No se pudo procesar la imagen' });
+    });
+};
 
 
 // Helper: Actualiza data general o data específica del vendedor
@@ -131,6 +174,48 @@ function updateContent(req, key, value, data) {
             seller.customizations[key] = value;
         }
     }
+}
+
+function getCarouselImagesForRole(req, data) {
+    if (req.userRole === 'admin') {
+        data.carouselImages = Array.isArray(data.carouselImages) ? data.carouselImages : [];
+        return data.carouselImages;
+    }
+
+    if (req.userRole === 'seller') {
+        const seller = (data.sellers || []).find(s => s.id === req.sellerId);
+        if (!seller) return null;
+
+        seller.customizations = seller.customizations || {};
+        seller.customizations.carouselImages = Array.isArray(seller.customizations.carouselImages)
+            ? seller.customizations.carouselImages
+            : [];
+        return seller.customizations.carouselImages;
+    }
+
+    return null;
+}
+
+function isCarouselImageReferenced(data, imageUrl) {
+    if ((data.carouselImages || []).includes(imageUrl)) return true;
+
+    return (data.sellers || []).some(seller =>
+        (seller.customizations?.carouselImages || []).includes(imageUrl)
+    );
+}
+
+function resolveLocalUploadPath(imageUrl) {
+    if (typeof imageUrl !== 'string' || !imageUrl.startsWith('uploads/')) return null;
+
+    const relativeUploadPath = imageUrl.slice('uploads/'.length);
+    const resolvedPath = path.resolve(uploadsDir, relativeUploadPath);
+    const relativePath = path.relative(uploadsDir, resolvedPath);
+
+    if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        return null;
+    }
+
+    return resolvedPath;
 }
 
 // API: Get content
@@ -270,9 +355,52 @@ app.get('/api/seller/:id', (req, res) => {
     }
 });
 
+function containsEditorArtifacts(html) {
+    if (typeof html !== 'string') return true;
+
+    const editorAttributePatterns = [
+        /<[^>]*\bcontenteditable(?:\s*=|\s|\/?>)/i,
+        /<[^>]*\bspellcheck\s*=\s*(?:"true"|'true'|true)(?:\s|\/?>)/i,
+        /<[^>]*\bdata-editor-[\w:-]*(?:\s*=|\s|\/?>)/i
+    ];
+    if (editorAttributePatterns.some(pattern => pattern.test(html))) return true;
+
+    const idAttributePattern = /<[^>]*\bid\s*=\s*(?:"([^"]*)"|'([^']*)')[^>]*>/gi;
+    let attributeMatch;
+    while ((attributeMatch = idAttributePattern.exec(html)) !== null) {
+        if ((attributeMatch[1] || attributeMatch[2]) === 'editor-toolbar') return true;
+    }
+
+    const temporaryClasses = new Set([
+        'editable',
+        'editor-mode',
+        'editor-selected',
+        'editor-hover',
+        'editor-active'
+    ]);
+    const classAttributePattern = /<[^>]*\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')[^>]*>/gi;
+    while ((attributeMatch = classAttributePattern.exec(html)) !== null) {
+        const classNames = (attributeMatch[1] || attributeMatch[2]).split(/\s+/);
+        if (classNames.some(className => temporaryClasses.has(className))) return true;
+    }
+
+    return false;
+}
+
 // API: Save entire HTML (Live Editor)
 app.post('/api/content/html', (req, res) => {
     const { html } = req.body;
+    if (typeof html !== 'string' || !html.trim()) {
+        return res.status(400).json({ success: false, error: 'El documento HTML es obligatorio.' });
+    }
+
+    if (containsEditorArtifacts(html)) {
+        return res.status(400).json({
+            success: false,
+            error: 'El documento contiene artefactos temporales del editor.'
+        });
+    }
+
     const data = readData();
 
     if (req.userRole === 'admin') {
@@ -292,43 +420,56 @@ app.post('/api/content/html', (req, res) => {
 });
 
 // API: Upload image (Maneja admin y seller)
-app.post('/api/content/images', upload.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No image' });
+app.post('/api/content/images', handleImageUpload, (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Selecciona una imagen válida' });
+    }
+
     const data = readData();
     const imageUrl = `uploads/${req.file.filename}`;
-    
-    if (req.userRole === 'admin') {
-        data.carouselImages = data.carouselImages || [];
-        data.carouselImages.push(imageUrl);
-    } else if (req.userRole === 'seller') {
-        const seller = data.sellers.find(s => s.id === req.sellerId);
-        seller.customizations = seller.customizations || {};
-        seller.customizations.carouselImages = seller.customizations.carouselImages || [];
-        seller.customizations.carouselImages.push(imageUrl);
+    const carouselImages = getCarouselImagesForRole(req, data);
+
+    if (!carouselImages) {
+        return res.status(403).json({ success: false, error: 'No autorizado' });
     }
+
+    carouselImages.push(imageUrl);
     writeData(data);
-    res.json({ success: true, imageUrl });
+    res.json({
+        success: true,
+        imageUrl,
+        data: { carouselImages: [...carouselImages] }
+    });
 });
 
 // API: Delete image
 app.delete('/api/content/images', (req, res) => {
     const { imageUrl } = req.body;
-    const data = readData();
-    
-    if (req.userRole === 'admin') {
-        data.carouselImages = (data.carouselImages || []).filter(img => img !== imageUrl);
-    } else if (req.userRole === 'seller') {
-        const seller = data.sellers.find(s => s.id === req.sellerId);
-        if (seller && seller.customizations && seller.customizations.carouselImages) {
-            seller.customizations.carouselImages = seller.customizations.carouselImages.filter(img => img !== imageUrl);
-        }
+    if (typeof imageUrl !== 'string' || !imageUrl.trim()) {
+        return res.status(400).json({ success: false, error: 'La URL de la imagen es obligatoria' });
     }
+
+    const data = readData();
+    const carouselImages = getCarouselImagesForRole(req, data);
+
+    if (!carouselImages) {
+        return res.status(403).json({ success: false, error: 'No autorizado' });
+    }
+
+    const imageWasReferenced = carouselImages.includes(imageUrl);
+    const updatedCarouselImages = carouselImages.filter(img => img !== imageUrl);
+    updateContent(req, 'carouselImages', updatedCarouselImages, data);
     writeData(data);
-    if (imageUrl.startsWith('uploads/')) {
-        const filePath = path.join(__dirname, imageUrl);
+
+    const filePath = resolveLocalUploadPath(imageUrl);
+    if (imageWasReferenced && filePath && !isCarouselImageReferenced(data, imageUrl)) {
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
-    res.json({ success: true });
+
+    res.json({
+        success: true,
+        data: { carouselImages: [...updatedCarouselImages] }
+    });
 });
 
 app.listen(PORT, () => {

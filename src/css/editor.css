@@ -1,20 +1,29 @@
 /* editor.css — Estilos para el Modo Edición Visual */
 
-/* Borde sutil para indicar elementos editables */
-.editable {
+body.editor-mode {
+    padding-top: 60px;
+}
+
+/* Borde sutil únicamente durante el modo de edición */
+body.editor-mode .editable {
     outline: 1px dashed rgba(223, 186, 83, 0.4);
     outline-offset: 4px;
     transition: outline-color 0.3s ease, background-color 0.3s ease;
     cursor: text;
 }
 
-.editable:hover, .editable:focus {
+body.editor-mode .editable:hover,
+body.editor-mode .editable:focus {
     outline: 2px dashed rgba(0, 255, 136, 0.8);
     background-color: rgba(0, 255, 136, 0.05);
 }
 
 /* Barra flotante del Editor */
 #editor-toolbar {
+    display: none;
+}
+
+body.editor-mode #editor-toolbar {
     position: fixed;
     top: 0;
     left: 0;
@@ -32,7 +41,7 @@
     font-family: var(--font-body);
 }
 
-.editor-status {
+body.editor-mode #editor-toolbar .editor-status {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -41,7 +50,7 @@
     font-size: 1rem;
 }
 
-.editor-status span {
+body.editor-mode #editor-toolbar .editor-status span {
     display: inline-block;
     width: 10px;
     height: 10px;
@@ -57,12 +66,12 @@
     100% { box-shadow: 0 0 5px var(--color-neon); }
 }
 
-.editor-actions {
+body.editor-mode #editor-toolbar .editor-actions {
     display: flex;
     gap: 1rem;
 }
 
-.btn-editor {
+body.editor-mode #editor-toolbar .btn-editor {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -73,17 +82,17 @@
     transition: all 0.2s ease;
 }
 
-.btn-editor:hover {
+body.editor-mode #editor-toolbar .btn-editor:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-.btn-editor-save {
+body.editor-mode #editor-toolbar .btn-editor-save {
     background: var(--color-neon);
     color: black;
     border: none;
 }
 
-.btn-editor-save:hover {
+body.editor-mode #editor-toolbar .btn-editor-save:hover {
     background: #00cc6e;
     box-shadow: 0 0 15px var(--color-neon);
 }

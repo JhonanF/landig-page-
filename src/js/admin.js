@@ -78,40 +78,179 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     };
 
+    let toastHideTimer = null;
+    let toastCleanupTimer = null;
+
+    const getToastElement = () => {
+        let toast = document.getElementById('admin-toast');
+        if (toast) return toast;
+
+        toast = document.createElement('div');
+        toast.id = 'admin-toast';
+        toast.className = 'admin-toast';
+        toast.setAttribute('aria-atomic', 'true');
+        toast.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(toast);
+        return toast;
+    };
+
+    const showToast = (message, type = 'success') => {
+        const toast = getToastElement();
+        const isError = type === 'error';
+
+        clearTimeout(toastHideTimer);
+        clearTimeout(toastCleanupTimer);
+        toast.className = `admin-toast admin-toast--${isError ? 'error' : 'success'}`;
+        toast.setAttribute('role', isError ? 'alert' : 'status');
+        toast.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+        toast.setAttribute('aria-hidden', 'false');
+
+        const icon = document.createElement('span');
+        icon.className = 'admin-toast__icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = isError ? '✕' : '✓';
+
+        const text = document.createElement('span');
+        text.className = 'admin-toast__message';
+        text.textContent = message;
+        toast.replaceChildren(icon, text);
+
+        requestAnimationFrame(() => toast.classList.add('is-visible'));
+        toastHideTimer = setTimeout(() => {
+            toast.classList.remove('is-visible');
+            toastCleanupTimer = setTimeout(() => {
+                toast.setAttribute('aria-hidden', 'true');
+                toast.replaceChildren();
+            }, 250);
+        }, 2600);
+    };
+
+    const copyToClipboard = async (text) => {
+        let clipboardError = null;
+
+        try {
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+        } catch (error) {
+            clipboardError = error;
+        }
+
+        let textarea = null;
+        try {
+            textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            Object.assign(textarea.style, {
+                position: 'fixed',
+                top: '-9999px',
+                left: '-9999px',
+                width: '1px',
+                height: '1px',
+                opacity: '0'
+            });
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+
+            if (typeof document.execCommand !== 'function' || !document.execCommand('copy')) {
+                throw new Error('El navegador rechazó el método alternativo de copia.');
+            }
+
+            return true;
+        } catch (fallbackError) {
+            const error = new Error('No se pudo copiar el enlace.');
+            error.clipboardError = clipboardError;
+            error.cause = fallbackError;
+            throw error;
+        } finally {
+            textarea?.remove();
+        }
+    };
+
+    const copyButtonStates = new WeakMap();
+
+    const restoreCopyButton = (button, refreshIcons = true) => {
+        const state = copyButtonStates.get(button);
+        if (!state) return;
+
+        clearTimeout(state.restoreTimer);
+        button.innerHTML = state.originalHTML;
+        if (state.originalAriaLabel === null) {
+            button.removeAttribute('aria-label');
+        } else {
+            button.setAttribute('aria-label', state.originalAriaLabel);
+        }
+        copyButtonStates.delete(button);
+        if (refreshIcons && window.lucide) window.lucide.createIcons();
+    };
+
+    const handleCopySellerLink = async (button) => {
+        const state = copyButtonStates.get(button) || {
+            originalHTML: button.innerHTML,
+            originalAriaLabel: button.getAttribute('aria-label'),
+            restoreTimer: null
+        };
+        clearTimeout(state.restoreTimer);
+        state.restoreTimer = null;
+        copyButtonStates.set(button, state);
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+
+        try {
+            await copyToClipboard(button.dataset.link);
+            button.innerHTML = '<i data-lucide="check" style="width:16px;"></i> Copiado';
+            button.setAttribute('aria-label', 'Enlace copiado');
+            if (window.lucide) window.lucide.createIcons();
+            showToast('Enlace copiado al portapapeles', 'success');
+
+            state.restoreTimer = setTimeout(() => {
+                if (button.isConnected) restoreCopyButton(button);
+            }, 2500);
+        } catch (error) {
+            console.error('[Clipboard]', error);
+            restoreCopyButton(button);
+            showToast('No se pudo copiar el enlace', 'error');
+        } finally {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.removeAttribute('aria-busy');
+            }
+        }
+    };
+
     // Utilidad: Renderizar Cupones
     const renderCoupons = () => {
         couponsContainer.innerHTML = '';
         if (couponsData.length === 0) {
-            couponsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No hay cupones creados.</p>';
+            couponsContainer.innerHTML = '<p class="admin-empty-state">No hay cupones creados.</p>';
             return;
         }
 
         couponsData.forEach((c, index) => {
             const div = document.createElement('div');
-            div.className = 'input-group';
-            div.style.background = 'rgba(255,255,255,0.03)';
-            div.style.padding = '1rem';
-            div.style.borderRadius = '8px';
-            div.style.border = '1px solid rgba(255,255,255,0.1)';
+            div.className = 'input-group admin-repeater-card coupon-card';
 
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                    <label style="margin:0;">Cupón #${index + 1}</label>
-                    <div style="display:flex; gap:1rem; align-items:center;">
-                        <label class="switch" style="transform: scale(0.8);">
-                            <input type="checkbox" class="coupon-active-toggle" data-index="${index}" ${c.active !== false ? 'checked' : ''}>
+                <div class="repeater-card-header">
+                    <label class="repeater-card-title">Cupón #${index + 1}</label>
+                    <div class="repeater-card-actions">
+                        <label class="switch">
+                            <input type="checkbox" class="coupon-active-toggle" data-index="${index}" aria-label="Activar cupón #${index + 1}" ${c.active !== false ? 'checked' : ''}>
                             <span class="slider round"></span>
                         </label>
-                        <button type="button" class="btn btn-outline btn-delete-coupon" data-index="${index}" style="padding:0.2rem 0.5rem; color:#ff4444; border-color:#ff4444;">
-                            <i data-lucide="trash-2" style="width:16px;"></i> Eliminar
+                        <button type="button" class="btn btn-outline btn-delete-coupon admin-danger-button" data-index="${index}">
+                            <i data-lucide="trash-2" aria-hidden="true"></i> Eliminar
                         </button>
                     </div>
                 </div>
-                <input type="text" class="coupon-code-input" data-index="${index}" placeholder="Código (ej. DESC50)" value="${c.code || ''}" style="margin-bottom:0.5rem;">
-                <input type="text" class="coupon-msg-input" data-index="${index}" placeholder="Mensaje de éxito (ej. ¡Tienes 50%!)" value="${c.message || ''}" style="margin-bottom:0.5rem;">
-                <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
-                    <input type="url" class="coupon-url-input" data-index="${index}" placeholder="URL del pago rebajado (Stripe/PayPal)" value="${c.url || ''}" style="flex:2;">
-                    <input type="text" class="coupon-price-input" data-index="${index}" placeholder="Nuevo Precio (Ej. $4.25)" value="${c.newPrice || ''}" style="flex:1;">
+                <input type="text" class="coupon-code-input" data-index="${index}" aria-label="Código del cupón #${index + 1}" placeholder="Código (ej. DESC50)" value="${c.code || ''}">
+                <input type="text" class="coupon-msg-input" data-index="${index}" aria-label="Mensaje del cupón #${index + 1}" placeholder="Mensaje de éxito (ej. ¡Tienes 50%!)" value="${c.message || ''}">
+                <div class="coupon-value-row">
+                    <input type="url" class="coupon-url-input" data-index="${index}" aria-label="URL de pago del cupón #${index + 1}" placeholder="URL del pago rebajado (Stripe/PayPal)" value="${c.url || ''}">
+                    <input type="text" class="coupon-price-input" data-index="${index}" aria-label="Nuevo precio del cupón #${index + 1}" placeholder="Nuevo Precio (Ej. $4.25)" value="${c.newPrice || ''}">
                 </div>
             `;
             couponsContainer.appendChild(div);
@@ -159,37 +298,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Utilidad: Renderizar Vendedores
     const renderSellers = () => {
+        sellersContainer.querySelectorAll('.btn-copy-seller')
+            .forEach(button => restoreCopyButton(button, false));
         sellersContainer.innerHTML = '';
         if (sellersData.length === 0) {
-            sellersContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No hay vendedores creados.</p>';
+            sellersContainer.innerHTML = '<p class="admin-empty-state">No hay vendedores creados.</p>';
             return;
         }
 
         sellersData.forEach((s, index) => {
             const div = document.createElement('div');
-            div.className = 'input-group';
-            div.style.background = 'rgba(255,255,255,0.03)';
-            div.style.padding = '1rem';
-            div.style.borderRadius = '8px';
-            div.style.border = '1px solid rgba(255,255,255,0.1)';
+            div.className = 'input-group admin-repeater-card seller-card';
 
             const currentUrl = window.location.origin;
             const refLink = `${currentUrl}/?ref=${s.id || 'ID'}`;
 
             div.innerHTML = `
-                <div style="flex:1;">
-                    <input type="text" class="seller-name-input" data-index="${index}" placeholder="Nombre Completo" value="${s.name || ''}" style="margin-bottom:0.5rem;">
-                    <div style="display:flex; gap:0.5rem;">
-                        <input type="text" class="seller-id-input" data-index="${index}" placeholder="Usuario (ej. juan)" value="${s.id || ''}" style="flex:1;">
-                        <input type="text" class="seller-pass-input" data-index="${index}" placeholder="Contraseña" value="${s.password || ''}" style="flex:1;">
+                <div class="seller-fields">
+                    <input type="text" class="seller-name-input" data-index="${index}" aria-label="Nombre completo del vendedor #${index + 1}" placeholder="Nombre Completo" value="${s.name || ''}">
+                    <div class="seller-credentials">
+                        <input type="text" class="seller-id-input" data-index="${index}" aria-label="Usuario del vendedor #${index + 1}" placeholder="Usuario (ej. juan)" value="${s.id || ''}">
+                        <input type="text" class="seller-pass-input" data-index="${index}" aria-label="Contraseña del vendedor #${index + 1}" placeholder="Contraseña" value="${s.password || ''}">
                     </div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center; padding-left: 1rem;">
-                    <button type="button" class="btn btn-copy-seller" data-link="${refLink}" style="background-color: white; color: black; border: none; font-weight: 600; padding:0.4rem 0.8rem; border-radius: 4px;">
-                        <i data-lucide="copy" style="width:14px; margin-right:4px;"></i> Copiar URL
+                <div class="seller-actions">
+                    <button type="button" class="btn btn-copy-seller" data-link="${refLink}">
+                        <i data-lucide="copy" aria-hidden="true"></i> Copiar URL
                     </button>
-                    <button type="button" class="btn btn-outline btn-delete-seller" data-index="${index}" style="padding:0.4rem 0.8rem; color:#ff4444; border-color:#ff4444;">
-                        <i data-lucide="trash-2" style="width:14px;"></i> Eliminar
+                    <button type="button" class="btn btn-outline btn-delete-seller admin-danger-button" data-index="${index}">
+                        <i data-lucide="trash-2" aria-hidden="true"></i> Eliminar
                     </button>
                 </div>
             `;
@@ -219,18 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         document.querySelectorAll('.btn-copy-seller').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const link = e.currentTarget.dataset.link;
-                navigator.clipboard.writeText(link).then(() => {
-                    const originalText = e.currentTarget.innerHTML;
-                    e.currentTarget.innerHTML = '<i data-lucide="check" style="width:16px;"></i> Copiado';
-                    if (window.lucide) window.lucide.createIcons();
-                    setTimeout(() => {
-                        e.currentTarget.innerHTML = originalText;
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 2000);
-                });
-            });
+            el.addEventListener('click', (e) => handleCopySellerLink(e.currentTarget));
         });
 
         if (window.lucide) {
@@ -250,9 +376,78 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res.status === 401) {
             // Token inválido o expirado
             loginOverlay.classList.remove('hidden');
-            throw new Error('No autorizado');
+            const error = new Error('No autorizado');
+            error.requestKind = 'api';
+            error.status = 401;
+            throw error;
         }
         return res;
+    };
+
+    const createRequestError = (kind, message, details = {}) => {
+        const error = new Error(message);
+        error.requestKind = kind;
+        Object.assign(error, details);
+        return error;
+    };
+
+    const requestJson = async (url, options = {}) => {
+        let response;
+        try {
+            response = await fetchWithAuth(url, options);
+        } catch (error) {
+            if (error.requestKind) throw error;
+            throw createRequestError('network', 'No se pudo conectar con el servidor.', { cause: error });
+        }
+
+        let result;
+        try {
+            result = await response.json();
+        } catch (error) {
+            throw createRequestError('parse', 'El servidor devolvió una respuesta inválida.', {
+                status: response.status,
+                cause: error
+            });
+        }
+
+        if (!response.ok) {
+            if (result && typeof result.error === 'string' && result.error) {
+                throw createRequestError('api', result.error, { status: response.status });
+            }
+
+            throw createRequestError(
+                'http',
+                `El servidor respondió con un error HTTP ${response.status}.`,
+                { status: response.status }
+            );
+        }
+
+        if (result && result.success === false) {
+            throw createRequestError('api', result.error || 'La operación fue rechazada por el servidor.');
+        }
+
+        return result;
+    };
+
+    const getCarouselImagesFromResponse = (result) => {
+        const images = result?.data?.carouselImages;
+        if (!Array.isArray(images)) {
+            throw createRequestError(
+                'response',
+                'La respuesta del servidor no contiene una galería válida.'
+            );
+        }
+        return images;
+    };
+
+    const getCarouselErrorMessage = (error, fallbackMessage) => {
+        if (error.requestKind === 'api' || error.requestKind === 'http' ||
+            error.requestKind === 'parse' || error.requestKind === 'response' ||
+            error.requestKind === 'network') {
+            return error.message;
+        }
+
+        return fallbackMessage;
     };
 
     // 0. Manejo del Login
@@ -373,6 +568,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const buildImageSrc = (imgUrl) => {
+        if (typeof imgUrl !== 'string' || !imgUrl.trim()) return '';
+
+        const cleanUrl = imgUrl.trim();
+        const isExternalUrl = /^(?:https?:)?\/\//i.test(cleanUrl);
+        if (isExternalUrl) return cleanUrl;
+
+        const hashIndex = cleanUrl.indexOf('#');
+        const urlWithoutHash = hashIndex === -1 ? cleanUrl : cleanUrl.slice(0, hashIndex);
+        const hash = hashIndex === -1 ? '' : cleanUrl.slice(hashIndex);
+        const separator = urlWithoutHash.includes('?') ? '&' : '?';
+        return `${urlWithoutHash}${separator}t=${Date.now()}${hash}`;
+    };
+
+    const createImagePlaceholder = () => {
+        const placeholder = document.createElement('div');
+        placeholder.textContent = 'Imagen no disponible';
+        placeholder.setAttribute('role', 'img');
+        placeholder.setAttribute('aria-label', 'Imagen no disponible');
+        Object.assign(placeholder.style, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            color: 'var(--text-muted)',
+            background: '#111',
+            fontSize: '0.85rem',
+            textAlign: 'center'
+        });
+        return placeholder;
+    };
+
     const renderGallery = (images) => {
         galleryGrid.innerHTML = '';
         if (images.length === 0) {
@@ -383,20 +612,30 @@ document.addEventListener('DOMContentLoaded', () => {
         images.forEach(imgUrl => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            
-            const img = document.createElement('img');
-            // Agregar timestamp para evitar cache en admin
-            img.src = `${imgUrl}?t=${Date.now()}`;
-            img.alt = 'Carrusel Image';
 
             const delBtn = document.createElement('button');
             delBtn.className = 'gallery-item-delete';
-            delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+            delBtn.innerHTML = '<i data-lucide="trash-2" aria-hidden="true"></i>';
             delBtn.title = "Eliminar imagen";
+            delBtn.setAttribute('aria-label', 'Eliminar imagen');
             
             delBtn.addEventListener('click', () => deleteImage(imgUrl));
 
-            item.appendChild(img);
+            const imageSrc = buildImageSrc(imgUrl);
+            if (imageSrc) {
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                img.alt = 'Imagen del carrusel';
+                img.addEventListener('error', () => {
+                    if (img.parentNode === item) {
+                        item.replaceChild(createImagePlaceholder(), img);
+                    }
+                }, { once: true });
+                item.appendChild(img);
+            } else {
+                item.appendChild(createImagePlaceholder());
+            }
+
             item.appendChild(delBtn);
             galleryGrid.appendChild(item);
         });
@@ -586,11 +825,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const isValidVideoUrl = (value) => {
+        if (typeof value !== 'string' || !value.trim()) return false;
+
+        const cleanUrl = value.trim();
+        try {
+            const parsedUrl = new URL(cleanUrl, window.location.origin);
+            const hasExplicitProtocol = /^[A-Za-z][A-Za-z\d+.-]*:/.test(cleanUrl);
+
+            if (hasExplicitProtocol) {
+                return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+            }
+
+            if (cleanUrl.startsWith('//')) return false;
+            return /\.(?:mp4|webm|ogg|ogv|m4v|mov|mpeg|mpg|m3u8)$/i.test(parsedUrl.pathname);
+        } catch (error) {
+            return false;
+        }
+    };
+
     // 2. Guardar Video
     videoForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const url = videoUrlInput.value.trim();
-        if (!url) return;
+        if (!isValidVideoUrl(url)) {
+            showFeedback(videoFeedback, 'Introduce una URL de video válida.', 'error');
+            return;
+        }
 
         const btn = document.getElementById('btn-save-video');
         const originalText = btn.textContent;
@@ -605,12 +866,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (res.ok) {
-                showFeedback(videoFeedback, 'Video actualizado correctamente.', 'success');
+                showFeedback(videoFeedback, '✓ Video actualizado correctamente.', 'success');
             } else {
-                throw new Error('Error al guardar');
+                const result = await res.json().catch(() => null);
+                throw new Error(result?.error || `Error HTTP ${res.status}`);
             }
         } catch (error) {
-            showFeedback(videoFeedback, 'Hubo un error al guardar el video.', 'error');
+            console.error('[Video Admin]', error);
+            showFeedback(videoFeedback, error.message || 'Hubo un error al guardar el video.', 'error');
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -641,26 +904,26 @@ document.addEventListener('DOMContentLoaded', () => {
         btnUploadImage.disabled = true;
 
         try {
-            const res = await fetchWithAuth(`${API_URL}/images`, {
+            const result = await requestJson(`${API_URL}/images`, {
                 method: 'POST',
                 body: formData
             });
 
-            if (res.ok) {
-                const result = await res.json();
-                showFeedback(imageFeedback, 'Imagen subida con éxito.', 'success');
-                // Reset form
-                imageUpload.value = '';
-                fileNameDisplay.textContent = 'Ningún archivo seleccionado';
-                // Actualizar galería
-                renderGallery(result.data.carouselImages);
-            } else {
-                throw new Error('Error al subir');
-            }
+            const carouselImages = getCarouselImagesFromResponse(result);
+            imageUpload.value = '';
+            fileNameDisplay.textContent = 'Ningún archivo seleccionado';
+            renderGallery(carouselImages);
+            showFeedback(imageFeedback, 'Imagen subida con éxito.', 'success');
         } catch (error) {
-            showFeedback(imageFeedback, 'Error al subir la imagen.', 'error');
-            btnUploadImage.disabled = false;
+            console.error('[Carousel Upload]', error);
+            showFeedback(
+                imageFeedback,
+                getCarouselErrorMessage(error, 'Ocurrió un error interno al subir la imagen.'),
+                'error'
+            );
+        } finally {
             btnUploadImage.textContent = 'Subir Imagen';
+            btnUploadImage.disabled = !imageUpload.files || imageUpload.files.length === 0;
         }
     });
 
@@ -669,21 +932,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('¿Estás seguro de que deseas eliminar esta imagen?')) return;
 
         try {
-            const res = await fetchWithAuth(`${API_URL}/images`, {
+            const result = await requestJson(`${API_URL}/images`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ imageUrl })
             });
 
-            if (res.ok) {
-                const result = await res.json();
-                renderGallery(result.data.carouselImages);
-            } else {
-                alert('Error al eliminar la imagen.');
-            }
+            renderGallery(getCarouselImagesFromResponse(result));
+            showFeedback(imageFeedback, 'Imagen eliminada correctamente.', 'success');
         } catch (error) {
-            console.error(error);
-            alert('Error de conexión.');
+            console.error('[Carousel Delete]', error);
+            showFeedback(
+                imageFeedback,
+                getCarouselErrorMessage(error, 'Ocurrió un error interno al eliminar la imagen.'),
+                'error'
+            );
         }
     };
 

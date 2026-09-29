@@ -12,8 +12,10 @@ window.addEventListener('DOMContentLoaded', () => {
     // ─── MOBILE BAIL OUT ─────────────────────────────────────────
     // En móviles el #canvas-3d está oculto con display:none en CSS.
     // No inicializar GSAP, mousemove listeners ni ScrollTrigger 3D aquí.
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
+    const canRenderSpline = window.matchMedia(
+        '(min-width: 1024px) and (hover: hover) and (pointer: fine)'
+    ).matches;
+    if (!canRenderSpline) return;
 
     // ─── DESKTOP ONLY ────────────────────────────────────────────
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;

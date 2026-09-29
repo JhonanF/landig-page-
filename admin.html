@@ -48,9 +48,9 @@
             <span class="logo-icon"><i data-lucide="shield"></i></span>
             <h1>Santuario <span class="text-neon">Admin</span></h1>
         </div>
-        <div class="admin-actions" style="display: flex; gap: 1rem;">
-            <a href="/?edit=true" class="btn btn-outline" target="_blank" style="border-color: var(--color-neon); color: var(--color-neon);">
-                <i data-lucide="edit-3" style="width:16px; margin-right:4px;"></i> Editor Visual
+        <div class="admin-actions">
+            <a href="/?edit=true" class="btn btn-outline admin-action--editor" target="_blank">
+                <i data-lucide="edit-3" class="admin-action-icon"></i> Editor Visual
             </a>
             <a href="/" class="btn btn-outline" target="_blank">Ver Landing Page</a>
         </div>
@@ -72,7 +72,7 @@
                         <div class="social-header">
                             <label for="payment-card"><i data-lucide="credit-card"></i> Tarjeta</label>
                             <label class="switch">
-                                <input type="checkbox" id="payment-card-active" checked>
+                                <input type="checkbox" id="payment-card-active" aria-label="Activar pago con tarjeta" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -83,7 +83,7 @@
                         <div class="social-header">
                             <label for="payment-paypal"><i data-lucide="dollar-sign"></i> PayPal</label>
                             <label class="switch">
-                                <input type="checkbox" id="payment-paypal-active" checked>
+                                <input type="checkbox" id="payment-paypal-active" aria-label="Activar pago con PayPal" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -94,7 +94,7 @@
                         <div class="social-header">
                             <label for="payment-crypto"><i data-lucide="bitcoin"></i> Criptomonedas</label>
                             <label class="switch">
-                                <input type="checkbox" id="payment-crypto-active" checked>
+                                <input type="checkbox" id="payment-crypto-active" aria-label="Activar pago con criptomonedas" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -117,11 +117,11 @@
             <div class="card-pilar admin-card">
                 <form id="offer-form" class="admin-form">
                     
-                    <div class="input-group social-group" style="margin-bottom: 1.5rem;">
+                    <div class="input-group social-group offer-toggle-group">
                         <div class="social-header">
                             <label for="offer-active"><i data-lucide="zap"></i> Activar Banner de Oferta</label>
                             <label class="switch">
-                                <input type="checkbox" id="offer-active" checked>
+                                <input type="checkbox" id="offer-active" aria-label="Activar banner de oferta" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -135,7 +135,7 @@
                     <div class="input-group">
                         <label for="offer-hours">Horas del Temporizador (Evergreen)</label>
                         <input type="number" id="offer-hours" placeholder="Ej. 2" min="1" max="72">
-                        <small style="color: var(--text-muted);">El reloj siempre empezará desde este tiempo para cada usuario nuevo.</small>
+                        <small class="admin-help-text">El reloj siempre empezará desde este tiempo para cada usuario nuevo.</small>
                     </div>
 
                     <button type="submit" class="btn btn--primary" id="btn-save-offer">Guardar Configuración de Oferta</button>
@@ -152,14 +152,14 @@
             </div>
             
             <div class="card-pilar admin-card">
-                <div id="coupons-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                <div id="coupons-container" class="admin-repeater-list">
                     <!-- Los cupones se renderizan aquí dinámicamente -->
                 </div>
                 
-                <button type="button" class="btn btn-outline" id="btn-add-coupon" style="width: 100%; border-style: dashed;">
+                <button type="button" class="btn btn-outline admin-create-button" id="btn-add-coupon">
                     <i data-lucide="plus"></i> Añadir Nuevo Cupón
                 </button>
-                <div style="margin-top: 1rem;">
+                <div class="admin-save-row">
                     <button type="button" class="btn btn--primary" id="btn-save-coupons">Guardar Cambios de Cupones</button>
                     <div id="coupons-feedback" class="feedback-msg"></div>
                 </div>
@@ -174,14 +174,14 @@
             </div>
             
             <div class="card-pilar admin-card">
-                <div id="sellers-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                <div id="sellers-container" class="admin-repeater-list">
                     <!-- Los vendedores se renderizan aquí dinámicamente -->
                 </div>
                 
-                <button type="button" class="btn btn-outline" id="btn-add-seller" style="width: 100%; border-style: dashed;">
+                <button type="button" class="btn btn-outline admin-create-button" id="btn-add-seller">
                     <i data-lucide="plus"></i> Añadir Nuevo Vendedor
                 </button>
-                <div style="margin-top: 1rem;">
+                <div class="admin-save-row">
                     <button type="button" class="btn btn--primary" id="btn-save-sellers">Guardar Cambios de Vendedores</button>
                     <div id="sellers-feedback" class="feedback-msg"></div>
                 </div>
@@ -201,7 +201,7 @@
                         <div class="social-header">
                             <label for="social-whatsapp"><i data-lucide="message-circle"></i> WhatsApp</label>
                             <label class="switch">
-                                <input type="checkbox" id="social-whatsapp-active" checked>
+                                <input type="checkbox" id="social-whatsapp-active" aria-label="Activar botón de WhatsApp" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -212,7 +212,7 @@
                         <div class="social-header">
                             <label for="social-telegram"><i data-lucide="send"></i> Telegram</label>
                             <label class="switch">
-                                <input type="checkbox" id="social-telegram-active" checked>
+                                <input type="checkbox" id="social-telegram-active" aria-label="Activar botón de Telegram" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -223,7 +223,7 @@
                         <div class="social-header">
                             <label for="social-instagram"><i data-lucide="instagram"></i> Instagram</label>
                             <label class="switch">
-                                <input type="checkbox" id="social-instagram-active" checked>
+                                <input type="checkbox" id="social-instagram-active" aria-label="Activar botón de Instagram" checked>
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -246,7 +246,7 @@
                 <form id="video-form" class="admin-form">
                     <div class="input-group">
                         <label for="video-url">URL del Video</label>
-                        <input type="url" id="video-url" placeholder="https://..." required>
+                        <input type="text" id="video-url" inputmode="url" placeholder="https://..." required>
                     </div>
                     <button type="submit" class="btn btn--primary" id="btn-save-video">Guardar Video</button>
                 </form>
